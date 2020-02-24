@@ -76,13 +76,18 @@ public class SerializationSupport {
      */
     private static Map<String, String> initCommonTypeMapping() {
         commonTypeMap = new HashMap<>();
+        commonTypeMap.put("zip", APPLICATION_ZIP);
         commonTypeMap.put(APPLICATION_ZIP, APPLICATION_ZIP);
 
+        commonTypeMap.put("tar", APPLICATION_TAR);
         commonTypeMap.put(APPLICATION_TAR, APPLICATION_TAR);
         commonTypeMap.put(APPLICATION_GTAR, APPLICATION_TAR);
         commonTypeMap.put(APPLICATION_X_TAR, APPLICATION_X_TAR);
         commonTypeMap.put(APPLICATION_X_GTAR, APPLICATION_X_TAR);
 
+        commonTypeMap.put("tgz", APPLICATION_GZIP);
+        commonTypeMap.put("gzip", APPLICATION_GZIP);
+        commonTypeMap.put("tar+gz", APPLICATION_GZIP);
         commonTypeMap.put(APPLICATION_GZIP, APPLICATION_GZIP);
         commonTypeMap.put(APPLICATION_X_GZIP, APPLICATION_GZIP);
         commonTypeMap.put(APPLICATION_X_COMPRESSED_TAR, APPLICATION_GZIP);
@@ -130,6 +135,32 @@ public class SerializationSupport {
         // todo: format list correctly
         throw new RuntimeException("BagProfile does not allow " + contentType + ". Accepted serializations are:\n" +
                 profile.getAcceptedSerializations());
+    }
+
+    /**
+     * Get a {@link BagSerializer} for a given content type and {@link BagProfile}. It takes both a short form (zip,
+     * tar, gzip) and long form (application/zip, application/tar) version for the content type.
+     *
+     * @param contentType the content type to get a {@link BagSerializer} for
+     * @param profile the {@link BagProfile} used for validating the {@code contentType}
+     * @return the {@link BagSerializer}
+     * @throws RuntimeException if the {@code contentType} is not supported
+     */
+    public static BagSerializer serializerFor(final String contentType, final BagProfile profile) {
+        final String type = commonTypeMap.getOrDefault(contentType, contentType);
+        if (profile.getAcceptedSerializations().contains(type)) {
+            if (ZIP_TYPES.contains(type)) {
+                return new ZipBagSerializer();
+            } else if (TAR_TYPES.contains(type)) {
+                return new TarBagSerializer();
+            } else if (GZIP_TYPES.contains(type)) {
+                return new TarGzBagSerializer();
+            }
+        }
+
+        // todo: proper formatting of list
+        throw new RuntimeException("BagProfile does not allow " + type + ". Accepted serializations are:\n" +
+                                   profile.getAcceptedSerializations());
     }
 
 }
