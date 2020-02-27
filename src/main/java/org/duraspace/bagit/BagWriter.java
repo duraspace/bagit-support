@@ -195,7 +195,7 @@ public class BagWriter {
 
     private void addTagChecksum(final String algorithm, final File f, final MessageDigest digest) {
         if (digest != null) {
-            Map<File, String> m = tagFileRegistry.computeIfAbsent(algorithm, key -> new HashMap<>());
+            final Map<File, String> m = tagFileRegistry.computeIfAbsent(algorithm, key -> new HashMap<>());
             m.put(f, HexEncoder.toString(digest.digest()));
         }
     }

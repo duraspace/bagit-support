@@ -22,7 +22,7 @@ public class ZipBagSerializer implements BagSerializer {
     private final String extension = ".zip";
 
     @Override
-    public Path serialize(Path root) {
+    public Path serialize(final Path root) {
         final Path parent = root.getParent().toAbsolutePath();
         final String bagName = root.getFileName().toString();
 
@@ -36,7 +36,7 @@ public class ZipBagSerializer implements BagSerializer {
             final List<Path> files = Files.walk(root).collect(Collectors.toList());
             for (Path bagEntry : files) {
                 final String name = parent.relativize(bagEntry).toString();
-                ArchiveEntry entry = zip.createArchiveEntry(bagEntry.toFile(), name);
+                final ArchiveEntry entry = zip.createArchiveEntry(bagEntry.toFile(), name);
                 zip.putArchiveEntry(entry);
                 if (bagEntry.toFile().isFile()) {
                     try (InputStream inputStream = Files.newInputStream(bagEntry)) {
@@ -46,6 +46,7 @@ public class ZipBagSerializer implements BagSerializer {
                 zip.closeArchiveEntry();
             }
         } catch (IOException e) {
+            // todo: log or something
             // blooh blah
         }
 

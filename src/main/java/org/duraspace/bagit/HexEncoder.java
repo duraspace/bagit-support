@@ -16,8 +16,11 @@ public class HexEncoder {
 
     private static final char[] hexDigits = "0123456789abcdef".toCharArray();
 
-    protected static String toString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder(2 * bytes.length);
+    private HexEncoder() {
+    }
+
+    protected static String toString(final byte[] bytes) {
+        final StringBuilder sb = new StringBuilder(2 * bytes.length);
         for (byte b : bytes) {
             sb.append(hexDigits[(b >> 4) & 0xf]).append(hexDigits[b & 0xf]);
         }

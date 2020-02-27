@@ -99,6 +99,33 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
+        <version>3.0.0</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.duraspace</groupId>
+            <artifactId>codestyle</artifactId>
+            <version>1.0.1</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <includeTestSourceDirectory>true</includeTestSourceDirectory>
+          <consoleOutput>true</consoleOutput>
+          <logViolationsToConsole>true</logViolationsToConsole>
+          <failsOnError>true</failsOnError>
+          <failOnViolation>true</failOnViolation>
+          <violationSeverity>warning</violationSeverity>
+          <configLocation>duraspace-checkstyle/checkstyle.xml</configLocation>
+          <suppressionsLocation>src/test/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
+        </configuration>
+        <executions>
+          <execution>
+            <id>checkstyle</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -117,8 +144,10 @@
         <artifactId>maven-resources-plugin</artifactId>
       </plugin>
 
-      <!-- verify that source files contain the correct license headers $ 
-        mvn license:check to check files $ mvn license:format to update files -->
+      <!-- verify that source files contain the correct license headers
+      todo: add license header
+            $ mvn license:check to check files
+            $ mvn license:format to update files -->
       <plugin>
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
