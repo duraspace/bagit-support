@@ -151,6 +151,31 @@
       <plugin>
         <groupId>com.mycila</groupId>
         <artifactId>license-maven-plugin</artifactId>
+        <configuration>
+          <header>src/test/resources/license/LICENSE_HEADER.txt</header>
+          <mapping>
+            <java>SLASHSTAR_STYLE</java>
+          </mapping>
+          <includes>
+            <include>**/src/main/java/**</include>
+            <include>**/src/test/java/**</include>
+          </includes>
+          <excludes>
+            <exclude>target/**</exclude>
+            <include>**/src/main/resources/**</include>
+            <include>**/src/test/resources/**</include>
+            <include>**/*.properties</include>
+          </excludes>
+          <encoding>UTF-8</encoding>
+          <strictCheck>true</strictCheck>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
