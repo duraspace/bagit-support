@@ -17,6 +17,11 @@
  */
 package org.duraspace.bagit;
 
+import static org.duraspace.bagit.BagItDigest.MD5;
+import static org.duraspace.bagit.BagItDigest.SHA1;
+import static org.duraspace.bagit.BagItDigest.SHA256;
+import static org.duraspace.bagit.BagItDigest.SHA512;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -27,7 +32,6 @@ import java.io.PrintWriter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -118,7 +122,7 @@ public class BagWriter {
      * @throws IOException when an I/O error occurs
      * @throws NoSuchAlgorithmException when an unsupported algorithm is used
      */
-    public void write() throws IOException, NoSuchAlgorithmException {
+    public void write() throws IOException {
         writeManifests("manifest", payloadRegistry);
         for (String tagFile : tagRegistry.keySet()) {
             writeTagFile(tagFile);
@@ -142,9 +146,8 @@ public class BagWriter {
         }
     }
 
-    private void writeTagFile(final String key) throws IOException, NoSuchAlgorithmException {
+    private void writeTagFile(final String key) throws IOException {
         final Map<String, String> values = tagRegistry.get(key);
-        final Map<String, String> checksums = new HashMap<>();
         if (values != null) {
             final File f = new File(bagDir, key);
 
@@ -152,22 +155,21 @@ public class BagWriter {
             MessageDigest sha1 = null;
             MessageDigest sha256 = null;
             MessageDigest sha512 = null;
-            if (algorithms.contains("md5")) {
-                md5 = MessageDigest.getInstance("MD5");
+            if (algorithms.contains(MD5.bagitName())) {
+                md5 = MD5.messageDigest();
             }
-            if (algorithms.contains("sha1")) {
-                sha1 = MessageDigest.getInstance("SHA-1");
+            if (algorithms.contains(SHA1.bagitName())) {
+                sha1 = SHA1.messageDigest();
             }
-            if (algorithms.contains("sha256")) {
-                sha256 = MessageDigest.getInstance("SHA-256");
+            if (algorithms.contains(SHA256.bagitName())) {
+                sha256 = SHA256.messageDigest();
             }
-            if (algorithms.contains("sha512")) {
-                sha512 = MessageDigest.getInstance("SHA-512");
+            if (algorithms.contains(SHA512.bagitName())) {
+                sha512 = SHA512.messageDigest();
             }
 
             try (OutputStream out = new FileOutputStream(f)) {
-                for (final Iterator<String> it = values.keySet().iterator(); it.hasNext(); ) {
-                    final String field = it.next();
+                for (final String field : values.keySet()) {
                     final byte[] bytes = (field + ": " + values.get(field) + "\n").getBytes();
                     out.write(bytes);
 
@@ -186,10 +188,10 @@ public class BagWriter {
                 }
             }
 
-            addTagChecksum("md5", f, md5);
-            addTagChecksum("sha1", f, sha1);
-            addTagChecksum("sha256", f, sha256);
-            addTagChecksum("sha512", f, sha512);
+            addTagChecksum(MD5.bagitName(), f, md5);
+            addTagChecksum(SHA1.bagitName(), f, sha1);
+            addTagChecksum(SHA256.bagitName(), f, sha256);
+            addTagChecksum(SHA512.bagitName(), f, sha512);
         }
     }
 
