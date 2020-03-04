@@ -141,7 +141,6 @@
       </plugin>
 
       <!-- verify that source files contain the correct license headers
-      todo: add license header
             $ mvn license:check to check files
             $ mvn license:format to update files -->
       <plugin>
@@ -187,10 +186,28 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.1.1</version>
         <configuration>
           <source>${project.java.source}</source>
           <linksource>true</linksource>
         </configuration>
+        <executions>
+          <execution>
+            <id>verify-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+              <goal>javadoc</goal>
+            </goals>
+            <phase>site</phase>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
