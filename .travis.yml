@@ -1,0 +1,11 @@
+language: java
+sudo: false
+jdk: openjdk8
+
+before_install:
+  - "echo $JAVA_OPTS"
+
+script:
+  - mvn install -B -V
+  - mvn javadoc:jar
+  - mvn javadoc:test-aggregate
