@@ -55,6 +55,10 @@ public class TarBagDeserializer implements BagDeserializer {
                 logger.debug("Handling entry {}", entry.getName());
                 final Path archiveFile = parent.resolve(name);
 
+                if (Files.notExists(archiveFile.getParent())) {
+                    Files.createDirectories(archiveFile.getParent());
+                }
+
                 if (entry.isDirectory()) {
                     Files.createDirectories(archiveFile);
                     if (archiveFile.getNameCount() == rootPathCount) {
