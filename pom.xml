@@ -10,14 +10,16 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.java.source>1.8</project.java.source>
+    <!-- dependency versions -->
+    <assertj.version>3.11.1</assertj.version>
     <bagit.version>5.1.1</bagit.version>
+    <commons-io.version>2.6</commons-io.version>
     <commons-compress.version>1.20</commons-compress.version>
-    <jackson.version>2.9.10.1</jackson.version>
     <junit.version>4.11</junit.version>
     <logback.version>1.1.2</logback.version>
-    <mockito.version>1.10.8</mockito.version>
     <slf4j.version>1.7.10</slf4j.version>
     <tika.version>1.23</tika.version>
+    <yaml-beans.version>1.13</yaml-beans.version>
   </properties>
 
   <dependencies>
@@ -42,7 +44,7 @@
     <dependency>
       <groupId>com.esotericsoftware.yamlbeans</groupId>
       <artifactId>yamlbeans</artifactId>
-      <version>1.13</version>
+      <version>${yaml-beans.version}</version>
     </dependency>
 
     <!-- logging -->
@@ -62,7 +64,7 @@
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
-      <version>2.6</version>
+      <version>${commons-io.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -72,15 +74,9 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
-      <version>${mockito.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.11.1</version>
+      <version>${assertj.version}</version>
       <scope>test</scope>
     </dependency>
 
