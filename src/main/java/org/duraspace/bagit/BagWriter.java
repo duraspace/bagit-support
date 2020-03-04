@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -120,7 +119,6 @@ public class BagWriter {
     /**
      * Write metadata and finalize Bag
      * @throws IOException when an I/O error occurs
-     * @throws NoSuchAlgorithmException when an unsupported algorithm is used
      */
     public void write() throws IOException {
         writeManifests("manifest", payloadRegistry);

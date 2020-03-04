@@ -68,6 +68,7 @@ public class ProfileValidationUtil {
      * @param profileSection describes the section of the profile that is being validated.
      * @param requiredFields the required fields and associated rule
      * @param tag the path to the info file to read
+     * @throws IOException when the {@code tag} file cannot be read
      * @throws ProfileValidationException when the fields do not pass muster. The exception message contains a
      *         description of all validation errors found.
      */
