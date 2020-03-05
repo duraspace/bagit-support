@@ -63,6 +63,12 @@ public class BagConfig {
 
     public static final String INTERNAL_SENDER_IDENTIFIER_KEY = "Internal-Sender-Identifier";
 
+    public static final String BAGGING_DATE_KEY = "Bagging-Date";
+
+    public static final String BAG_SIZE_KEY = "Bag-Size";
+
+    public static final String PAYLOAD_OXUM_KEY = "Payload-Oxum";
+
     public static final String BAG_GROUP_IDENTIFIER = "Bag-Group-Identifier";
 
     public static final String TITLE_KEY = "Title";
