@@ -61,8 +61,8 @@ referenced in order to be loaded.
 *e.g. Using a Built In Profile*
 ```java
 final String profileIdentifier = "beyondtherepository";
-final BagProfile.BuildIn builtInProfile = BagProfile.BuiltIn.from(profileIdentifier);
-final BagProfile profile = new BagProfile(buildInProfile);
+final BagProfile.BuiltIn builtInProfile = BagProfile.BuiltIn.from(profileIdentifier);
+final BagProfile profile = new BagProfile(builtInProfile);
 ```
 
 ### Loading A Custom Bag Profile
@@ -217,4 +217,3 @@ final BagSerializer deserializer = SerializationSupport.deserializerFor(bag, pro
 
 final Path deserialized = deserializer.deserialize(bag);
 ```
-
