@@ -166,10 +166,12 @@ public class BagProfileTest {
         final Path profiles = Paths.get("src/main/resources/profiles");
 
         Files.list(profiles).forEach(path -> {
-            logger.debug("Validating {}", path);
+            String profileIdentifier = path.getFileName().toString();
+            profileIdentifier = profileIdentifier.substring(0, profileIdentifier.indexOf("."));
+            logger.debug("Validating {}", profileIdentifier);
             BagProfile profile = null;
             try {
-                profile = new BagProfile(Files.newInputStream(path));
+                profile = new BagProfile(BagProfile.BuiltIn.from(profileIdentifier));
             } catch (IOException e) {
                 Assert.fail(e.getMessage());
             }
@@ -352,8 +354,7 @@ public class BagProfileTest {
         bag.setItemsToFetch(Collections.singletonList(new FetchItem(fetchUrl, fetchLength, fetchFile)));
         bag.setVersion(new Version(0, 0));
         bag.setRootDir(Paths.get(targetDir, defaultBag));
-        final File testFile = new File("src/main/resources/profiles/aptrust.json");
-        final BagProfile bagProfile = new BagProfile(new FileInputStream(testFile));
+        final BagProfile bagProfile = new BagProfile(BagProfile.BuiltIn.APTRUST);
 
         putRequiredBagInfo(bag, bagProfile);
         putRequiredManifests(bag.getPayLoadManifests(), bagProfile.getPayloadDigestAlgorithms());

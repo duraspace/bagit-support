@@ -60,11 +60,9 @@ referenced in order to be loaded.
 
 *e.g. Using a Built In Profile*
 ```java
-final BagProfile profile;
-final URL json = this.getClass().getClassLoader().getResource("profiles/default.json");
-try (InputStream is = json.openStream()) {
-    profile = new BagProfile(is);
-}
+final String profileIdentifier = "beyondtherepository";
+final BagProfile.BuildIn builtInProfile = BagProfile.BuiltIn.from(profileIdentifier);
+final BagProfile profile = new BagProfile(buildInProfile);
 ```
 
 ### Loading A Custom Bag Profile

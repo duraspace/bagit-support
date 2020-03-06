@@ -34,15 +34,19 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 
@@ -79,6 +83,58 @@ public class BagProfile {
         }
     }
 
+    /**
+     * Enum of the built in profiles which are provided with bagit-support
+     */
+    public enum BuiltIn {
+        APTRUST("aptrust"),
+        BEYOND_THE_REPOSITORY("beyondtherepository"),
+        DEFAULT("default"),
+        METAARCHIVE("metaarchive"),
+        PERSEIDS("perseids");
+
+        private final String identifier;
+
+        /**
+         * Default constructor
+         *
+         * @param identifier the identifier of the profile
+         */
+        BuiltIn(final String identifier) {
+            this.identifier = identifier;
+        }
+
+        /**
+         * Retrieve a built in profile from an identifier
+         *
+         * @param identifier the identifier to retrieve a profile for
+         * @return the {@link BuiltIn} profile
+         * @throws IllegalArgumentException if the {@code identifier} is not supported
+         */
+        public static BuiltIn from(final String identifier) {
+            switch (identifier.toLowerCase()) {
+                case "aptrust": return APTRUST;
+                case "beyondtherepository": return BEYOND_THE_REPOSITORY;
+                case "default": return DEFAULT;
+                case "metaarchive": return METAARCHIVE;
+                case "perseids": return PERSEIDS;
+                default: throw new IllegalArgumentException("Unsupported profile identifier. Accepted values are: " +
+                                                            Arrays.stream(BuiltIn.values())
+                                                                  .map(BuiltIn::getIdentifier)
+                                                                  .collect(Collectors.joining(", ")));
+            }
+        }
+
+        /**
+         * Get the identifier associated with the profile
+         *
+         * @return the identifier
+         */
+        public String getIdentifier() {
+            return identifier;
+        }
+    }
+
     private static final Logger logger = getLogger(BagProfile.class);
 
     private boolean allowFetch;
@@ -101,12 +157,30 @@ public class BagProfile {
     private Map<String, String> profileMetadata = new HashMap<>();
 
     /**
-     * Default constructor.
+     * Load a BagProfile from a {@link BuiltIn} profile type
+     *
+     * @param builtInProfile the supported profile to load
+     * @throws IOException if there is an error reading the json
+     */
+    public BagProfile(final BuiltIn builtInProfile) throws IOException {
+        final String resource = "profiles/" + builtInProfile.identifier + ".json";
+        final URL resourceURL = this.getClass().getClassLoader().getResource(resource);
+        try (InputStream in = Objects.requireNonNull(resourceURL).openStream()) {
+            load(in);
+        }
+    }
+
+    /**
+     * Create a BagProfile from a given InputStream
      *
      * @param in InputStream containing the Bag profile JSON document
      * @throws IOException when there is an I/O error reading JSON
      */
     public BagProfile(final InputStream in) throws IOException {
+        load(in);
+    }
+
+    private void load(final InputStream in) throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
         final JsonNode json = mapper.readTree(in);
 
