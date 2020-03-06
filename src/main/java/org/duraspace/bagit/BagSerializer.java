@@ -17,6 +17,7 @@
  */
 package org.duraspace.bagit;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 /**
@@ -34,7 +35,8 @@ public interface BagSerializer {
      *
      * @param root the {@link Path} which is the top level directory of the BagIt bag
      * @return the {@link Path} to the serialized BagIt bag
+     * @throws IOException if there is an error writing to the archive
      */
-    Path serialize(Path root);
+    Path serialize(Path root) throws IOException;
 
 }

@@ -39,7 +39,7 @@ public class TarBagSerializer implements BagSerializer {
     private final String extension = ".tar";
 
     @Override
-    public Path serialize(final Path root) {
+    public Path serialize(final Path root) throws IOException {
         final Path parent = root.getParent().toAbsolutePath();
         final String bagName = root.getFileName().toString();
 
@@ -58,8 +58,6 @@ public class TarBagSerializer implements BagSerializer {
                 }
                 tar.closeArchiveEntry();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
 
         return serializedBag;

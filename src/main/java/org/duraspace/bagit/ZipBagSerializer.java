@@ -39,7 +39,7 @@ public class ZipBagSerializer implements BagSerializer {
     private final String extension = ".zip";
 
     @Override
-    public Path serialize(final Path root) {
+    public Path serialize(final Path root) throws IOException {
         final Path parent = root.getParent().toAbsolutePath();
         final String bagName = root.getFileName().toString();
 
@@ -62,9 +62,6 @@ public class ZipBagSerializer implements BagSerializer {
                 }
                 zip.closeArchiveEntry();
             }
-        } catch (IOException e) {
-            // todo: log or something
-            // blooh blah
         }
 
         return serializedBag;
