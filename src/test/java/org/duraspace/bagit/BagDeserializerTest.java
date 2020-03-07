@@ -44,7 +44,6 @@ public class BagDeserializerTest {
         });
     }
 
-    public static final String BEYONDTHEREPOSITORY_JSON = "src/main/resources/profiles/beyondtherepository.json";
     public static final String BAG_INFO_TXT = "bag-info.txt";
     public static final String DATA_DIR = "data";
     private final String group = "compress";
@@ -74,7 +73,7 @@ public class BagDeserializerTest {
     public void testExtract() {
         final Path path = target.resolve(group).resolve(archive);
         try {
-            final BagProfile profile = new BagProfile(Files.newInputStream(Paths.get(BEYONDTHEREPOSITORY_JSON)));
+            final BagProfile profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
             final BagDeserializer deserializer = SerializationSupport.deserializerFor(path, profile);
             deserializer.deserialize(path);
         } catch (IOException e) {
