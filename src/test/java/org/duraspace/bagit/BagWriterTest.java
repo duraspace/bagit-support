@@ -41,8 +41,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Test basic bag writing functionality to make sure we are writing compliant bags
@@ -51,8 +49,6 @@ import org.slf4j.LoggerFactory;
  * @since 2020-03-05
  */
 public class BagWriterTest {
-
-    private final Logger log = LoggerFactory.getLogger(BagWriterTest.class);
 
     // set up expected bag, data file, and tag files
     private final String bagName = "bag-writer-test";
