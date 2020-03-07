@@ -83,19 +83,19 @@ public class BagProfileTest {
     public void testBasicProfileFromFile() throws Exception {
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(defaultProfilePath)));
 
-        final BagItDigest md5 = BagItDigest.MD5;
-        final BagItDigest sha1 = BagItDigest.SHA1;
-        final BagItDigest sha256 = BagItDigest.SHA256;
-        final BagItDigest sha512 = BagItDigest.SHA512;
-        assertTrue(profile.getPayloadDigestAlgorithms().contains(md5.bagitName()));
-        assertTrue(profile.getPayloadDigestAlgorithms().contains(sha1.bagitName()));
-        assertTrue(profile.getPayloadDigestAlgorithms().contains(sha256.bagitName()));
-        assertTrue(profile.getPayloadDigestAlgorithms().contains(sha512.bagitName()));
+        final String md5 = BagItDigest.MD5.bagitName();
+        final String sha1 = BagItDigest.SHA1.bagitName();
+        final String sha256 = BagItDigest.SHA256.bagitName();
+        final String sha512 = BagItDigest.SHA512.bagitName();
+        assertTrue(profile.getPayloadDigestAlgorithms().contains(md5));
+        assertTrue(profile.getPayloadDigestAlgorithms().contains(sha1));
+        assertTrue(profile.getPayloadDigestAlgorithms().contains(sha256));
+        assertTrue(profile.getPayloadDigestAlgorithms().contains(sha512));
 
-        assertFalse(profile.getTagDigestAlgorithms().contains(md5.bagitName()));
-        assertTrue(profile.getTagDigestAlgorithms().contains(sha1.bagitName()));
-        assertTrue(profile.getTagDigestAlgorithms().contains(sha256.bagitName()));
-        assertTrue(profile.getTagDigestAlgorithms().contains(sha512.bagitName()));
+        assertFalse(profile.getTagDigestAlgorithms().contains(md5));
+        assertTrue(profile.getTagDigestAlgorithms().contains(sha1));
+        assertTrue(profile.getTagDigestAlgorithms().contains(sha256));
+        assertTrue(profile.getTagDigestAlgorithms().contains(sha512));
 
         assertTrue(profile.getMetadataFields().get(SOURCE_ORGANIZATION_KEY).isRequired());
         assertTrue(profile.getMetadataFields().get(ORGANIZATION_ADDRESS_KEY).isRequired());
