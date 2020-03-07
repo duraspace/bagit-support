@@ -7,6 +7,7 @@ package org.duraspace.bagit;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +39,6 @@ import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.util.Maps;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -152,11 +152,11 @@ public class BagWriterTest {
             verifier.isValid(readBag, false);
         } catch (UnparsableVersionException | MaliciousPathException | UnsupportedAlgorithmException |
             InvalidBagitFileFormatException e) {
-            Assert.fail("Unable to read bag");
+            fail("Unable to read bag");
         } catch (VerificationException | MissingPayloadDirectoryException | MissingPayloadManifestException |
             FileNotInPayloadDirectoryException | CorruptChecksumException | MissingBagitFileException |
             InterruptedException e) {
-            Assert.fail("Unable to verify bag");
+            fail("Unable to verify bag");
         }
     }
 }
