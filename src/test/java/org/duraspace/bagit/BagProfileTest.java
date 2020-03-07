@@ -8,27 +8,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.net.URL;
-import java.util.Collections;
 
-import org.junit.Assert;
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.domain.FetchItem;
 import gov.loc.repository.bagit.domain.Manifest;
 import gov.loc.repository.bagit.domain.Version;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,8 +40,10 @@ public class BagProfileTest {
 
     private final String testValue = "test-value";
     private final String defaultBag = "/bag";
-    private final String defaultProfile = "src/test/resources/profiles/profile.json";
-    private final String bagInfoIdentifier = "Bag-Info";
+    private final String defaultProfilePath = "profiles/profile.json";
+    private final String extraTagsPath = "profiles/profileWithExtraTags.json";
+    private final String invalidPath = "profiles/invalidProfile.json";
+    private final String invalidSerializationPath = "profiles/invalidProfileSerializationError.json";
 
     private final Version defaultVersion = new Version(1, 0);
     private final String targetDir = "src/test/resources/sample";
@@ -51,18 +52,21 @@ public class BagProfileTest {
 
     @Test
     public void testBasicProfileFromFile() throws Exception {
-        final File testFile = new File("src/test/resources/profiles/profile.json");
-        final BagProfile profile = new BagProfile(new FileInputStream(testFile));
+        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(defaultProfilePath)));
 
-        assertTrue(profile.getPayloadDigestAlgorithms().contains("md5"));
-        assertTrue(profile.getPayloadDigestAlgorithms().contains("sha1"));
-        assertTrue(profile.getPayloadDigestAlgorithms().contains("sha256"));
-        assertTrue(profile.getPayloadDigestAlgorithms().contains("sha512"));
+        final BagItDigest md5 = BagItDigest.MD5;
+        final BagItDigest sha1 = BagItDigest.SHA1;
+        final BagItDigest sha256 = BagItDigest.SHA256;
+        final BagItDigest sha512 = BagItDigest.SHA512;
+        assertTrue(profile.getPayloadDigestAlgorithms().contains(md5.bagitName()));
+        assertTrue(profile.getPayloadDigestAlgorithms().contains(sha1.bagitName()));
+        assertTrue(profile.getPayloadDigestAlgorithms().contains(sha256.bagitName()));
+        assertTrue(profile.getPayloadDigestAlgorithms().contains(sha512.bagitName()));
 
-        assertFalse(profile.getTagDigestAlgorithms().contains("md5"));
-        assertTrue(profile.getTagDigestAlgorithms().contains("sha1"));
-        assertTrue(profile.getTagDigestAlgorithms().contains("sha256"));
-        assertTrue(profile.getTagDigestAlgorithms().contains("sha512"));
+        assertFalse(profile.getTagDigestAlgorithms().contains(md5.bagitName()));
+        assertTrue(profile.getTagDigestAlgorithms().contains(sha1.bagitName()));
+        assertTrue(profile.getTagDigestAlgorithms().contains(sha256.bagitName()));
+        assertTrue(profile.getTagDigestAlgorithms().contains(sha512.bagitName()));
 
         assertTrue(profile.getMetadataFields().get("Source-Organization").isRequired());
         assertTrue(profile.getMetadataFields().get("Organization-Address").isRequired());
@@ -89,8 +93,7 @@ public class BagProfileTest {
     @Test
     public void testExtendedProfile() throws Exception {
         final String aptrustInfo = "APTrust-Info";
-        final File testFile = new File("src/test/resources/profiles/profileWithExtraTags.json");
-        final BagProfile profile = new BagProfile(new FileInputStream(testFile));
+        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
 
         assertTrue(profile.getSectionNames().stream().anyMatch(t -> t.equalsIgnoreCase(BagProfileConstants.BAG_INFO)));
         assertTrue(profile.getSectionNames().stream().anyMatch(t -> t.equals(aptrustInfo)));
@@ -103,48 +106,43 @@ public class BagProfileTest {
 
     }
 
+    private final String bagitConfig = "configs/bagit-config.yml";
+    private final String bagitConfigBadAccess = "configs/bagit-config-bad-access.yml";
+    private final String bagitConfigMissingAccess = "configs/bagit-config-missing-access.yml";
+    private final String bagitConfigNoAptrust = "configs/bagit-config-no-aptrust.yml";
+
     @Test
     public void testGoodConfig() throws Exception {
-        final File configFile = new File("src/test/resources/configs/bagit-config.yml");
-        final BagConfig config = new BagConfig(configFile);
-        final File profileFile = new File("src/test/resources/profiles/profileWithExtraTags.json");
-        final BagProfile profile = new BagProfile(new FileInputStream(profileFile));
+        final BagConfig config = new BagConfig(resolveResourcePath(bagitConfig).toFile());
+        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
         profile.validateConfig(config);
     }
 
     @Test(expected = RuntimeException.class)
     public void testBadAccessValue() throws Exception {
-        final File configFile = new File("src/test/resources/configs/bagit-config-bad-access.yml");
-        final BagConfig config = new BagConfig(configFile);
-        final File profileFile = new File("src/test/resources/profiles/profileWithExtraTags.json");
-        final BagProfile profile = new BagProfile(new FileInputStream(profileFile));
+        final BagConfig config = new BagConfig(resolveResourcePath(bagitConfigBadAccess).toFile());
+        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
         profile.validateConfig(config);
     }
 
     @Test(expected = RuntimeException.class)
     public void testMissingAccessValue() throws Exception {
-        final File configFile = new File("src/test/resources/configs/bagit-config-missing-access.yml");
-        final BagConfig config = new BagConfig(configFile);
-        final File profileFile = new File("src/test/resources/profiles/profileWithExtraTags.json");
-        final BagProfile profile = new BagProfile(new FileInputStream(profileFile));
+        final BagConfig config = new BagConfig(resolveResourcePath(bagitConfigMissingAccess).toFile());
+        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
         profile.validateConfig(config);
     }
 
     @Test
     public void testMissingSectionNotNeeded() throws Exception {
-        final File configFile = new File("src/test/resources/configs/bagit-config-no-aptrust.yml");
-        final BagConfig config = new BagConfig(configFile);
-        final File profileFile = new File("src/test/resources/profiles/profile.json");
-        final BagProfile profile = new BagProfile(new FileInputStream(profileFile));
+        final BagConfig config = new BagConfig(resolveResourcePath(bagitConfigNoAptrust).toFile());
+        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(defaultProfilePath)));
         profile.validateConfig(config);
     }
 
     @Test(expected = RuntimeException.class)
     public void testMissingSectionRequired() throws Exception {
-        final File configFile = new File("src/test/resources/configs/bagit-config-no-aptrust.yml");
-        final BagConfig config = new BagConfig(configFile);
-        final File profileFile = new File("src/test/resources/profiles/profileWithExtraTags.json");
-        final BagProfile profile = new BagProfile(new FileInputStream(profileFile));
+        final BagConfig config = new BagConfig(resolveResourcePath(bagitConfigNoAptrust).toFile());
+        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
         profile.validateConfig(config);
     }
 
@@ -169,9 +167,8 @@ public class BagProfileTest {
     }
 
     @Test
-    public void testInvalidBagProfile() throws IOException {
-        final File profileFile = new File("src/test/resources/profiles/invalidProfile.json");
-        final BagProfile profile = new BagProfile(new FileInputStream(profileFile));
+    public void testInvalidBagProfile() throws IOException, URISyntaxException {
+        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(invalidPath)));
         try {
             validateProfile(profile);
             Assert.fail("Should throw an exception");
@@ -189,9 +186,8 @@ public class BagProfileTest {
     }
 
     @Test
-    public void testInvalidBagProfileSerializationTypo() throws IOException {
-        final File profileFile = new File("src/test/resources/profiles/invalidProfileSerializationError.json");
-        final BagProfile profile = new BagProfile(new FileInputStream(profileFile));
+    public void testInvalidBagProfileSerializationTypo() throws IOException, URISyntaxException {
+        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(invalidSerializationPath)));
         try {
             validateProfile(profile);
             Assert.fail("Should throw an exception");
@@ -316,12 +312,11 @@ public class BagProfileTest {
     }
 
     @Test
-    public void testValidateBag() throws IOException {
+    public void testValidateBag() throws IOException, URISyntaxException {
         final Bag bag = new Bag();
         bag.setVersion(defaultVersion);
         bag.setRootDir(Paths.get(targetDir, defaultBag));
-        final File testFile = new File(defaultProfile);
-        final BagProfile bagProfile = new BagProfile(new FileInputStream(testFile));
+        final BagProfile bagProfile = new BagProfile(Files.newInputStream(resolveResourcePath(defaultProfilePath)));
 
         putRequiredBagInfo(bag, bagProfile);
         putRequiredManifests(bag.getTagManifests(), bagProfile.getTagDigestAlgorithms());
@@ -404,11 +399,17 @@ public class BagProfileTest {
      * @param profile the BagProfile defining the required info fields
      */
     private void putRequiredBagInfo(final Bag bag, final BagProfile profile) {
-        final Map<String, ProfileFieldRule> bagInfoMeta = profile.getMetadataFields(bagInfoIdentifier);
+        final Map<String, ProfileFieldRule> bagInfoMeta = profile.getMetadataFields(BagProfileConstants.BAG_INFO);
         for (Map.Entry<String, ProfileFieldRule> entry : bagInfoMeta.entrySet()) {
             if (entry.getValue().isRequired())  {
                 bag.getMetadata().add(entry.getKey(), testValue);
             }
         }
     }
+
+    private Path resolveResourcePath(final String resource) throws URISyntaxException {
+        final URL url = this.getClass().getClassLoader().getResource(resource);
+        return Paths.get(Objects.requireNonNull(url).toURI());
+    }
+
 }

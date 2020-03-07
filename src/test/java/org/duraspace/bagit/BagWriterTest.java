@@ -10,7 +10,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -21,7 +20,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.exceptions.CorruptChecksumException;
@@ -70,11 +68,7 @@ public class BagWriterTest {
         final Path sample = Paths.get(sampleUrl.toURI());
         bag = sample.resolve(bagName);
 
-        final String btrLocation = "profiles/beyondtherepository.json";
-        final URL btrUrl = this.getClass().getClassLoader().getResource(btrLocation);
-        try (InputStream is = Objects.requireNonNull(btrUrl).openStream()) {
-            profile = new BagProfile(is);
-        }
+        profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
     }
 
     @After
