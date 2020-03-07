@@ -49,6 +49,7 @@ import gov.loc.repository.bagit.domain.Manifest;
 import gov.loc.repository.bagit.domain.Version;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,7 @@ import org.slf4j.LoggerFactory;
 public class BagProfileTest {
 
     private final String testValue = "test-value";
-    private final String defaultBag = "/bag";
+    private final String defaultBag = "bag";
 
     // profile locations
     private final String defaultProfilePath = "profiles/profile.json";
@@ -75,9 +76,15 @@ public class BagProfileTest {
     private final String bagitConfigNoAptrust = "configs/bagit-config-no-aptrust.yml";
 
     private final Version defaultVersion = new Version(1, 0);
-    private final String targetDir = "src/test/resources/sample";
+    private Path targetDir;
 
     private final Logger logger = LoggerFactory.getLogger(BagProfileTest.class);
+
+    @Before
+    public void setup() throws URISyntaxException {
+        final URL url = this.getClass().getClassLoader().getResource("sample");
+        targetDir = Paths.get(Objects.requireNonNull(url).toURI());
+    }
 
     @Test
     public void testBasicProfileFromFile() throws Exception {
@@ -340,7 +347,7 @@ public class BagProfileTest {
     public void testValidateBag() throws IOException, URISyntaxException {
         final Bag bag = new Bag();
         bag.setVersion(defaultVersion);
-        bag.setRootDir(Paths.get(targetDir, defaultBag));
+        bag.setRootDir(targetDir.resolve(defaultBag));
         final BagProfile bagProfile = new BagProfile(Files.newInputStream(resolveResourcePath(defaultProfilePath)));
 
         putRequiredBagInfo(bag, bagProfile);
@@ -360,7 +367,7 @@ public class BagProfileTest {
         final Bag bag = new Bag();
         bag.setItemsToFetch(Collections.singletonList(new FetchItem(fetchUrl, fetchLength, fetchFile)));
         bag.setVersion(new Version(0, 0));
-        bag.setRootDir(Paths.get(targetDir, defaultBag));
+        bag.setRootDir(targetDir.resolve(defaultBag));
         final BagProfile bagProfile = new BagProfile(BagProfile.BuiltIn.APTRUST);
 
         putRequiredBagInfo(bag, bagProfile);
