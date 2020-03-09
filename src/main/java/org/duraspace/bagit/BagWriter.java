@@ -16,6 +16,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
@@ -118,13 +119,19 @@ public class BagWriter {
     private void writeManifests(final String prefix, final Map<String, Map<File, String>> registry)
             throws IOException {
         final String delimiter = "  ";
+        final String bagitSeparator = "/";
+        final String osSeparator = File.separator;
+        final Path bag = bagDir.toPath();
+
         for (final String algorithm : algorithms) {
             final Map<File, String> filemap = registry.get(algorithm);
             if (filemap != null) {
                 final File f = new File(bagDir, prefix + "-" + algorithm + ".txt");
                 try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(f)))) {
                     for (final File payload : filemap.keySet()) {
-                        out.println(filemap.get(payload) + delimiter + bagDir.toPath().relativize(payload.toPath()));
+                        final String relative = bag.relativize(payload.toPath()).toString()
+                                                   .replaceAll(osSeparator, bagitSeparator);
+                        out.println(filemap.get(payload) + delimiter + relative);
                     }
                 }
             }
