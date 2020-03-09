@@ -9,17 +9,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.apache.commons.compress.utils.Sets;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,23 +32,25 @@ import org.junit.Test;
  */
 public class BagSerializerTest {
 
-    private final Set<String> bagFiles = Sets.newHashSet("bag/", "bag/bag-info.txt", "bag/bagit.txt",
-                                                         "bag/manifest-sha1.txt", "bag/manifest-sha256.txt",
-                                                         "bag/tagmanifest-sha1.txt", "bag/data/",
-                                                         "bag/data/image0.binary");
-
     private Path bag;
     private Path resources;
     private BagProfile profile;
+    private Set<String> bagFiles;
 
     @Before
     public void setup() throws IOException, URISyntaxException {
         final String samples = "sample";
+        final String separator = FileSystems.getDefault().getSeparator();
 
         profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
         final URI sample = Objects.requireNonNull(this.getClass().getClassLoader().getResource(samples)).toURI();
         resources = Paths.get(sample);
         bag = Paths.get(sample).resolve("bag");
+        bagFiles = Files.walk(bag)
+                        // directories are notated with a trailing slash in archives, so add it here as well
+                        .map(path -> Files.isDirectory(path) ? resources.relativize(path).toString() + separator
+                                                             : resources.relativize(path).toString())
+                        .collect(Collectors.toSet());
     }
 
     @Test
