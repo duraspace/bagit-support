@@ -9,7 +9,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,21 +34,18 @@ public class BagSerializerTest {
     private Path bag;
     private Path resources;
     private BagProfile profile;
-    private Set<String> bagFiles;
+    private Set<Path> bagFiles;
 
     @Before
     public void setup() throws IOException, URISyntaxException {
         final String samples = "sample";
-        final String separator = FileSystems.getDefault().getSeparator();
 
         profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
         final URI sample = Objects.requireNonNull(this.getClass().getClassLoader().getResource(samples)).toURI();
         resources = Paths.get(sample);
         bag = Paths.get(sample).resolve("bag");
         bagFiles = Files.walk(bag)
-                        // directories are notated with a trailing slash in archives, so add it here as well
-                        .map(path -> Files.isDirectory(path) ? resources.relativize(path).toString() + separator
-                                                             : resources.relativize(path).toString())
+                        .map(path -> resources.relativize(path))
                         .collect(Collectors.toSet());
     }
 
@@ -67,7 +63,7 @@ public class BagSerializerTest {
         try (ZipArchiveInputStream zipIn = new ZipArchiveInputStream(Files.newInputStream(zippedBag))) {
             ArchiveEntry entry;
             while ((entry = zipIn.getNextEntry()) != null) {
-                assertThat(bagFiles).contains(entry.getName());
+                assertThat(bagFiles).contains(Paths.get(entry.getName()));
             }
         }
 
@@ -88,7 +84,7 @@ public class BagSerializerTest {
         try (TarArchiveInputStream zipIn = new TarArchiveInputStream(Files.newInputStream(serializedBag))) {
             ArchiveEntry entry;
             while ((entry = zipIn.getNextEntry()) != null) {
-                assertThat(bagFiles).contains(entry.getName());
+                assertThat(bagFiles).contains(Paths.get(entry.getName()));
             }
         }
 
@@ -110,7 +106,7 @@ public class BagSerializerTest {
              TarArchiveInputStream zipIn = new TarArchiveInputStream(gzip)) {
             ArchiveEntry entry;
             while ((entry = zipIn.getNextEntry()) != null) {
-                assertThat(bagFiles).contains(entry.getName());
+                assertThat(bagFiles).contains(Paths.get(entry.getName()));
             }
         }
 
