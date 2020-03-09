@@ -119,8 +119,8 @@ public class BagWriter {
     private void writeManifests(final String prefix, final Map<String, Map<File, String>> registry)
             throws IOException {
         final String delimiter = "  ";
-        final String bagitSeparator = "/";
-        final String osSeparator = File.separator;
+        final char backslash = '\\';
+        final char bagitSeparator = '/';
         final Path bag = bagDir.toPath();
 
         for (final String algorithm : algorithms) {
@@ -129,8 +129,9 @@ public class BagWriter {
                 final File f = new File(bagDir, prefix + "-" + algorithm + ".txt");
                 try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(f)))) {
                     for (final File payload : filemap.keySet()) {
+                        // replace all occurrences of backslashes, which are not allowed per the bagit spec
                         final String relative = bag.relativize(payload.toPath()).toString()
-                                                   .replaceAll(osSeparator, bagitSeparator);
+                                                   .replace(backslash, bagitSeparator);
                         out.println(filemap.get(payload) + delimiter + relative);
                     }
                 }
