@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.exceptions.CorruptChecksumException;
@@ -61,7 +62,7 @@ public class BagWriterTest {
     @Before
     public void setup() throws URISyntaxException, IOException {
         final URL sampleUrl = this.getClass().getClassLoader().getResource("sample");
-        final Path sample = Paths.get(sampleUrl.toURI());
+        final Path sample = Paths.get(Objects.requireNonNull(sampleUrl).toURI());
         bag = sample.resolve(bagName);
 
         profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
@@ -95,7 +96,6 @@ public class BagWriterTest {
         final Map<File, String> sha1Sums = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha1MD.digest()));
         final Map<File, String> sha256Sums  = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha256MD.digest()));
         final Map<File, String> sha512Sums = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha512MD.digest()));
-
 
         writer.addTags(extraTagName, Maps.newHashMap("test-key", "test-value"));
         final Map<String, String> bagInfoFields = new HashMap<>();
@@ -152,11 +152,11 @@ public class BagWriterTest {
             verifier.isValid(readBag, false);
         } catch (UnparsableVersionException | MaliciousPathException | UnsupportedAlgorithmException |
             InvalidBagitFileFormatException e) {
-            fail("Unable to read bag");
+            fail("Unable to read bag:\n" + e.getMessage());
         } catch (VerificationException | MissingPayloadDirectoryException | MissingPayloadManifestException |
             FileNotInPayloadDirectoryException | CorruptChecksumException | MissingBagitFileException |
             InterruptedException e) {
-            fail("Unable to verify bag");
+            fail("Unable to verify bag:\n" + e.getMessage());
         }
     }
 }
