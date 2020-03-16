@@ -35,6 +35,8 @@ public class TarGzBagSerializer implements BagSerializer {
         try(final OutputStream os = Files.newOutputStream(serializedBag);
             final GZIPOutputStream gzip = new GZIPOutputStream(os);
             final TarArchiveOutputStream tar = new TarArchiveOutputStream(gzip)) {
+            tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
+            tar.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
             final List<Path> files = Files.walk(root).collect(Collectors.toList());
             for (Path bagEntry : files) {
                 final String name = parent.relativize(bagEntry).toString();

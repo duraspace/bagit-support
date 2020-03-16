@@ -33,6 +33,8 @@ public class TarBagSerializer implements BagSerializer {
         final Path serializedBag = parent.resolve(bagName + extension);
         try(final OutputStream os = Files.newOutputStream(serializedBag);
             final TarArchiveOutputStream tar = new TarArchiveOutputStream(os)) {
+            tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
+            tar.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
             final List<Path> files = Files.walk(root).collect(Collectors.toList());
             for (Path bagEntry : files) {
                 final String name = parent.relativize(bagEntry).toString();
