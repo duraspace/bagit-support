@@ -2,6 +2,7 @@
 Libraries to provide support for the use of Bagit bags and Bagit Profiles
 
 [![LICENSE](https://img.shields.io/badge/license-Apache-blue.svg?style=flat-square)](./LICENSE)
+[![codecov](https://codecov.io/gh/duraspace/bagit-support/branch/master/graph/badge.svg)](https://codecov.io/gh/duraspace/bagit-support)
 
 ## Bag Profiles
 
