@@ -4,19 +4,12 @@
  */
 package org.duraspace.bagit;
 
-import static org.duraspace.bagit.BagItDigest.MD5;
-import static org.duraspace.bagit.BagItDigest.SHA1;
-import static org.duraspace.bagit.BagItDigest.SHA256;
-import static org.duraspace.bagit.BagItDigest.SHA512;
-
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +30,12 @@ public class BagWriter {
     private Map<BagItDigest, Map<File, String>> payloadRegistry;
     private Map<BagItDigest, Map<File, String>> tagFileRegistry;
     private Map<String, Map<String, String>> tagRegistry;
+
+    /**
+     * This map provides a way to retrieve all ongoing MessageDigests so that multiple checksums
+     * can easily be run and retrieved
+     */
+    private Map<BagItDigest, DigestOutputStream> activeStreams;
 
     /**
      * Version of the BagIt specification implemented
@@ -64,6 +63,8 @@ public class BagWriter {
         bagitValues.put("BagIt-Version", BAGIT_VERSION);
         bagitValues.put("Tag-File-Character-Encoding", "UTF-8");
         tagRegistry.put("bagit.txt", bagitValues);
+
+        activeStreams = new HashMap<>();
     }
 
     /**
@@ -109,15 +110,15 @@ public class BagWriter {
      * @throws IOException when an I/O error occurs
      */
     public void write() throws IOException {
-        writeManifests("manifest", payloadRegistry);
+        writeManifests("manifest", payloadRegistry, true);
         for (String tagFile : tagRegistry.keySet()) {
             writeTagFile(tagFile);
         }
-        writeManifests("tagmanifest", tagFileRegistry);
+        writeManifests("tagmanifest", tagFileRegistry, false);
     }
 
-    private void writeManifests(final String prefix, final Map<BagItDigest, Map<File, String>> registry)
-            throws IOException {
+    private void writeManifests(final String prefix, final Map<BagItDigest, Map<File, String>> registry,
+                                final boolean registerToTags) throws IOException {
         final String delimiter = "  ";
         final char backslash = '\\';
         final char bagitSeparator = '/';
@@ -127,12 +128,21 @@ public class BagWriter {
             final Map<File, String> filemap = registry.get(algorithm);
             if (filemap != null) {
                 final File f = new File(bagDir, prefix + "-" + algorithm.bagitName() + ".txt");
-                try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(f)))) {
+                try (OutputStream out = streamFor(f.toPath())) {
                     for (final File payload : filemap.keySet()) {
                         // replace all occurrences of backslashes, which are not allowed per the bagit spec
                         final String relative = bag.relativize(payload.toPath()).toString()
                                                    .replace(backslash, bagitSeparator);
-                        out.println(filemap.get(payload) + delimiter + relative);
+                        final String line = filemap.get(payload) + delimiter + relative;
+                        out.write(line.getBytes());
+                        out.write("\n".getBytes());
+
+                        if (registerToTags) {
+                            for (Map.Entry<BagItDigest, DigestOutputStream> entry : activeStreams.entrySet()) {
+                                addTagChecksum(entry.getKey(), f, entry.getValue().getMessageDigest());
+                            }
+                        }
+                        activeStreams.clear();
                     }
                 }
             }
@@ -144,48 +154,41 @@ public class BagWriter {
         if (values != null) {
             final File f = new File(bagDir, key);
 
-            MessageDigest md5 = null;
-            MessageDigest sha1 = null;
-            MessageDigest sha256 = null;
-            MessageDigest sha512 = null;
-            if (algorithms.contains(MD5)) {
-                md5 = MD5.messageDigest();
-            }
-            if (algorithms.contains(SHA1)) {
-                sha1 = SHA1.messageDigest();
-            }
-            if (algorithms.contains(SHA256)) {
-                sha256 = SHA256.messageDigest();
-            }
-            if (algorithms.contains(SHA512)) {
-                sha512 = SHA512.messageDigest();
-            }
-
-            try (OutputStream out = new FileOutputStream(f)) {
+            try (OutputStream out = streamFor(f.toPath())) {
                 for (final String field : values.keySet()) {
                     final byte[] bytes = (field + ": " + values.get(field) + "\n").getBytes();
                     out.write(bytes);
-
-                    if (md5 != null) {
-                        md5.update(bytes);
-                    }
-                    if (sha1 != null) {
-                        sha1.update(bytes);
-                    }
-                    if (sha256 != null) {
-                        sha256.update(bytes);
-                    }
-                    if (sha512 != null) {
-                        sha512.update(bytes);
-                    }
                 }
             }
 
-            addTagChecksum(MD5, f, md5);
-            addTagChecksum(SHA1, f, sha1);
-            addTagChecksum(SHA256, f, sha256);
-            addTagChecksum(SHA512, f, sha512);
+            for (Map.Entry<BagItDigest, DigestOutputStream> entry : activeStreams.entrySet()) {
+                addTagChecksum(entry.getKey(), f, entry.getValue().getMessageDigest());
+            }
         }
+
+        activeStreams.clear();
+    }
+
+    /**
+     * Create an {@link OutputStream} for a given {@link Path} which can be used to write data to the file.
+     * This wraps the returned {@link OutputStream} with {@link DigestOutputStream}s in order to create a checksum
+     * for the file as it is being written. There is one {@link DigestOutputStream} per {@link BagItDigest} in this
+     * classes registered {@code algorithms}. Each {@link DigestOutputStream} is stored in the {@code activeStreams} so
+     * that it can be retrieved later on.
+     *
+     * @param file the {@link Path} to create an {@link OutputStream} for
+     * @return the {@link OutputStream}
+     * @throws IOException if there is an error creating the {@link OutputStream}
+     */
+    private OutputStream streamFor(final Path file) throws IOException {
+        OutputStream lastStream = Files.newOutputStream(file);
+        for (BagItDigest algorithm : algorithms) {
+            final DigestOutputStream dos = new DigestOutputStream(lastStream, algorithm.messageDigest());
+            activeStreams.put(algorithm, dos);
+            lastStream = dos;
+        }
+
+        return lastStream;
     }
 
     private void addTagChecksum(final BagItDigest algorithm, final File f, final MessageDigest digest) {
