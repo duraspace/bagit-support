@@ -87,8 +87,7 @@ public class BagWriterTest {
 
         // Create a writer with 3 manifest algorithms
         Files.createDirectories(bag);
-        final BagWriter writer = new BagWriter(bag.toFile(), Sets.newHashSet(sha1.bagitName(), sha256.bagitName(),
-                                                                             sha512.bagitName()));
+        final BagWriter writer = new BagWriter(bag.toFile(), Sets.newHashSet(sha1, sha256, sha512));
 
         // Setup the data file
         final Path data = bag.resolve("data");
@@ -104,9 +103,9 @@ public class BagWriterTest {
         bagInfoFields.put(BagConfig.BAG_SIZE_KEY, "0 bytes");
         bagInfoFields.put(BagConfig.PAYLOAD_OXUM_KEY, "1.0");
         writer.addTags(BagConfig.BAG_INFO_KEY, bagInfoFields);
-        writer.registerChecksums(sha1.bagitName(), sha1Sums);
-        writer.registerChecksums(sha256.bagitName(), sha256Sums);
-        writer.registerChecksums(sha512.bagitName(), sha512Sums);
+        writer.registerChecksums(sha1, sha1Sums);
+        writer.registerChecksums(sha256, sha256Sums);
+        writer.registerChecksums(sha512, sha512Sums);
 
         writer.write();
 
