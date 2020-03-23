@@ -87,6 +87,19 @@ public class BagProfileTest {
     }
 
     @Test
+    public void testBuiltInProfiles() {
+        // validate that the string passed in the constructor matches the string used in the switch statement
+        for (BagProfile.BuiltIn value : BagProfile.BuiltIn.values()) {
+            assertEquals(value, BagProfile.BuiltIn.from(value.getIdentifier()));
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuiltInNotSupported() {
+        BagProfile.BuiltIn.from("test");
+    }
+
+    @Test
     public void testBasicProfileFromFile() throws Exception {
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(defaultProfilePath)));
 
