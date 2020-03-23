@@ -105,6 +105,8 @@ public class BagProfileTest {
         assertTrue(profile.getTagDigestAlgorithms().contains(sha512));
 
         assertTrue(profile.getMetadataFields().get(SOURCE_ORGANIZATION_KEY).isRequired());
+        assertEquals(profile.getMetadataFields().get(SOURCE_ORGANIZATION_KEY).getDescription(),
+                     SOURCE_ORGANIZATION_KEY);
         assertTrue(profile.getMetadataFields().get(ORGANIZATION_ADDRESS_KEY).isRequired());
         assertTrue(profile.getMetadataFields().get(CONTACT_NAME_KEY).isRequired());
         assertTrue(profile.getMetadataFields().get(CONTACT_PHONE_KEY).isRequired());
@@ -139,7 +141,6 @@ public class BagProfileTest {
         assertTrue(profile.getMetadataFields(aptrustInfo).get(ACCESS_KEY).getValues().contains("Consortia"));
         assertTrue(profile.getMetadataFields(aptrustInfo).get(ACCESS_KEY).getValues().contains("Institution"));
         assertTrue(profile.getMetadataFields(aptrustInfo).get(ACCESS_KEY).getValues().contains("Restricted"));
-
     }
 
 
