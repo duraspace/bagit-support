@@ -105,9 +105,11 @@ public class BagProfileTest {
         assertTrue(profile.getTagDigestAlgorithms().contains(sha512));
 
         assertTrue(profile.getMetadataFields().get(SOURCE_ORGANIZATION_KEY).isRequired());
+        assertFalse(profile.getMetadataFields().get(SOURCE_ORGANIZATION_KEY).isRepeatable());
         assertEquals(profile.getMetadataFields().get(SOURCE_ORGANIZATION_KEY).getDescription(),
                      SOURCE_ORGANIZATION_KEY);
         assertTrue(profile.getMetadataFields().get(ORGANIZATION_ADDRESS_KEY).isRequired());
+        assertTrue(profile.getMetadataFields().get(ORGANIZATION_ADDRESS_KEY).isRepeatable());
         assertTrue(profile.getMetadataFields().get(CONTACT_NAME_KEY).isRequired());
         assertTrue(profile.getMetadataFields().get(CONTACT_PHONE_KEY).isRequired());
         assertTrue(profile.getMetadataFields().get(BAG_SIZE_KEY).isRequired());
