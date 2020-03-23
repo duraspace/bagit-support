@@ -32,10 +32,10 @@ public class BagWriter {
 
     private File bagDir;
     private File dataDir;
-    private Set<String> algorithms;
+    private Set<BagItDigest> algorithms;
 
-    private Map<String, Map<File, String>> payloadRegistry;
-    private Map<String, Map<File, String>> tagFileRegistry;
+    private Map<BagItDigest, Map<File, String>> payloadRegistry;
+    private Map<BagItDigest, Map<File, String>> tagFileRegistry;
     private Map<String, Map<String, String>> tagRegistry;
 
     /**
@@ -48,7 +48,7 @@ public class BagWriter {
      * @param bagDir The base directory for the Bag (will be created if it doesn't exist)
      * @param algorithms Set of digest algorithms to use for manifests (e.g., "md5", "sha1", or "sha256")
      */
-    public BagWriter(final File bagDir, final Set<String> algorithms) {
+    public BagWriter(final File bagDir, final Set<BagItDigest> algorithms) {
         this.bagDir = bagDir;
         this.dataDir = new File(bagDir, "data");
         if (!dataDir.exists()) {
@@ -79,7 +79,7 @@ public class BagWriter {
      * @param algorithm Checksum digest algorithm name (e.g., "SHA-1")
      * @param filemap Map of Files to checksum values
      */
-    public void registerChecksums(final String algorithm, final Map<File, String> filemap) {
+    public void registerChecksums(final BagItDigest algorithm, final Map<File, String> filemap) {
         if (!algorithms.contains(algorithm)) {
             throw new RuntimeException("Invalid algorithm: " + algorithm);
         }
@@ -116,17 +116,17 @@ public class BagWriter {
         writeManifests("tagmanifest", tagFileRegistry);
     }
 
-    private void writeManifests(final String prefix, final Map<String, Map<File, String>> registry)
+    private void writeManifests(final String prefix, final Map<BagItDigest, Map<File, String>> registry)
             throws IOException {
         final String delimiter = "  ";
         final char backslash = '\\';
         final char bagitSeparator = '/';
         final Path bag = bagDir.toPath();
 
-        for (final String algorithm : algorithms) {
+        for (final BagItDigest algorithm : algorithms) {
             final Map<File, String> filemap = registry.get(algorithm);
             if (filemap != null) {
-                final File f = new File(bagDir, prefix + "-" + algorithm + ".txt");
+                final File f = new File(bagDir, prefix + "-" + algorithm.bagitName() + ".txt");
                 try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(f)))) {
                     for (final File payload : filemap.keySet()) {
                         // replace all occurrences of backslashes, which are not allowed per the bagit spec
@@ -148,16 +148,16 @@ public class BagWriter {
             MessageDigest sha1 = null;
             MessageDigest sha256 = null;
             MessageDigest sha512 = null;
-            if (algorithms.contains(MD5.bagitName())) {
+            if (algorithms.contains(MD5)) {
                 md5 = MD5.messageDigest();
             }
-            if (algorithms.contains(SHA1.bagitName())) {
+            if (algorithms.contains(SHA1)) {
                 sha1 = SHA1.messageDigest();
             }
-            if (algorithms.contains(SHA256.bagitName())) {
+            if (algorithms.contains(SHA256)) {
                 sha256 = SHA256.messageDigest();
             }
-            if (algorithms.contains(SHA512.bagitName())) {
+            if (algorithms.contains(SHA512)) {
                 sha512 = SHA512.messageDigest();
             }
 
@@ -181,14 +181,14 @@ public class BagWriter {
                 }
             }
 
-            addTagChecksum(MD5.bagitName(), f, md5);
-            addTagChecksum(SHA1.bagitName(), f, sha1);
-            addTagChecksum(SHA256.bagitName(), f, sha256);
-            addTagChecksum(SHA512.bagitName(), f, sha512);
+            addTagChecksum(MD5, f, md5);
+            addTagChecksum(SHA1, f, sha1);
+            addTagChecksum(SHA256, f, sha256);
+            addTagChecksum(SHA512, f, sha512);
         }
     }
 
-    private void addTagChecksum(final String algorithm, final File f, final MessageDigest digest) {
+    private void addTagChecksum(final BagItDigest algorithm, final File f, final MessageDigest digest) {
         if (digest != null) {
             final Map<File, String> m = tagFileRegistry.computeIfAbsent(algorithm, key -> new HashMap<>());
             m.put(f, HexEncoder.toString(digest.digest()));
