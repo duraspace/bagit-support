@@ -279,7 +279,7 @@ public class BagProfile {
             }
 
             final JsonNode descriptionNode = field.get("description");
-            if (descriptionNode != null && descriptionNode.asText().isEmpty()) {
+            if (descriptionNode != null && !descriptionNode.asText().isEmpty()) {
                 description = descriptionNode.asText();
             }
 
