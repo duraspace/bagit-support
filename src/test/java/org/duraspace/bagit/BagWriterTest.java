@@ -142,6 +142,12 @@ public class BagWriterTest {
         final List<String> extraLines = Files.readAllLines(extra);
         assertThat(extraLines).contains("test-key: test-value");
 
+        // Assert that tagmanifest-*.txt contains the manifest checksums
+        final List<String> sha1TagLines = Files.readAllLines(sha1Tagmanifest);
+        assertThat(sha1TagLines).anySatisfy(entry -> {
+            assertThat(entry).containsPattern("manifest-sha1.txt|manifest-sha256.txt|manifest-sha512.txt");
+        });
+
         // Finally, pass BagProfile validation and BagIt validation
         final BagReader reader = new BagReader();
         final BagVerifier verifier = new BagVerifier();
