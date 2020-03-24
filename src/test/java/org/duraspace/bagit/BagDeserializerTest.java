@@ -44,7 +44,6 @@ public class BagDeserializerTest {
             {"bag-zip.zip", "bag-zip"},
             {"bag-zip-no-dirs.zip", "bag-zip"},
             {"bag-gzip.tar.gz", "bag-gzip"},
-            {"bag-tar-mismatch.tar", "bag-tar"},
         });
     }
 
