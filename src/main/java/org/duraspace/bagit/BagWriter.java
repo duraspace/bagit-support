@@ -89,12 +89,15 @@ public class BagWriter {
     }
 
     /**
-     * Add tags (metadata) to the Bag
+     * Add tags (metadata) to the Bag. If the {@code key} already exists, the {@code values} will be appended to the
+     * existing entry.
+     *
      * @param key Filename of the tag file (e.g., "bag-info.txt")
      * @param values Map containing field/value pairs
      */
     public void addTags(final String key, final Map<String, String> values) {
-        tagRegistry.put(key, values);
+        final Map<String, String> tagValues = tagRegistry.computeIfAbsent(key, k -> new HashMap<>());
+        tagValues.putAll(values);
     }
 
     /**
