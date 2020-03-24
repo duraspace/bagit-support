@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -164,4 +165,19 @@ public class BagWriterTest {
             fail("Unable to verify bag:\n" + e.getMessage());
         }
     }
+
+    @Test(expected = RuntimeException.class)
+    public void testAddInvalidAlgorithm() throws IOException {
+        // The message digests to use
+        final BagItDigest sha1 = BagItDigest.SHA1;
+        final BagItDigest sha256 = BagItDigest.SHA256;
+
+        // Create a writer with 3 manifest algorithms
+        Files.createDirectories(bag);
+        final BagWriter writer = new BagWriter(bag.toFile(), Sets.newHashSet(sha1));
+
+        // we don't need to pass any files, just the errant BagItDigest
+        writer.registerChecksums(sha256, Collections.emptyMap());
+    }
+
 }
