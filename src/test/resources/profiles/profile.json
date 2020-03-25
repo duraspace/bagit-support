@@ -10,10 +10,13 @@
    },
    "Bag-Info":{
       "Source-Organization":{
-         "required":true
+         "required":true,
+         "repeatable": false,
+         "description": "Source-Organization"
       },
       "Organization-Address":{
-         "required":true
+         "required":true,
+         "repeatable": true
       },
       "Contact-Name":{
          "required":true

@@ -87,6 +87,19 @@ public class BagProfileTest {
     }
 
     @Test
+    public void testBuiltInProfiles() {
+        // validate that the string passed in the constructor matches the string used in the switch statement
+        for (BagProfile.BuiltIn value : BagProfile.BuiltIn.values()) {
+            assertEquals(value, BagProfile.BuiltIn.from(value.getIdentifier()));
+        }
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuiltInNotSupported() {
+        BagProfile.BuiltIn.from("test");
+    }
+
+    @Test
     public void testBasicProfileFromFile() throws Exception {
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(defaultProfilePath)));
 
@@ -105,7 +118,11 @@ public class BagProfileTest {
         assertTrue(profile.getTagDigestAlgorithms().contains(sha512));
 
         assertTrue(profile.getMetadataFields().get(SOURCE_ORGANIZATION_KEY).isRequired());
+        assertFalse(profile.getMetadataFields().get(SOURCE_ORGANIZATION_KEY).isRepeatable());
+        assertEquals(profile.getMetadataFields().get(SOURCE_ORGANIZATION_KEY).getDescription(),
+                     SOURCE_ORGANIZATION_KEY);
         assertTrue(profile.getMetadataFields().get(ORGANIZATION_ADDRESS_KEY).isRequired());
+        assertTrue(profile.getMetadataFields().get(ORGANIZATION_ADDRESS_KEY).isRepeatable());
         assertTrue(profile.getMetadataFields().get(CONTACT_NAME_KEY).isRequired());
         assertTrue(profile.getMetadataFields().get(CONTACT_PHONE_KEY).isRequired());
         assertTrue(profile.getMetadataFields().get(BAG_SIZE_KEY).isRequired());
@@ -139,7 +156,6 @@ public class BagProfileTest {
         assertTrue(profile.getMetadataFields(aptrustInfo).get(ACCESS_KEY).getValues().contains("Consortia"));
         assertTrue(profile.getMetadataFields(aptrustInfo).get(ACCESS_KEY).getValues().contains("Institution"));
         assertTrue(profile.getMetadataFields(aptrustInfo).get(ACCESS_KEY).getValues().contains("Restricted"));
-
     }
 
 
