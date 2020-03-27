@@ -131,6 +131,11 @@ public class BagProfileTest {
         assertTrue(profile.getMetadataFields().get(PAYLOAD_OXUM_KEY).isRequired());
         assertFalse(profile.getMetadataFields().get(CONTACT_EMAIL_KEY).isRequired());
 
+        assertTrue(profile.getMetadataFields().get(BAGIT_PROFILE_IDENTIFIER).isRepeatable());
+        assertFalse(profile.getMetadataFields().get(BAGIT_PROFILE_IDENTIFIER).isRequired());
+        assertFalse(profile.getMetadataFields().get(BAGIT_PROFILE_IDENTIFIER).isRecommended());
+        assertEquals(profile.getMetadataFields().get(BAGIT_PROFILE_IDENTIFIER).getDescription(), "No description");
+
         assertTrue(profile.getSectionNames().stream().allMatch(t -> t.equalsIgnoreCase(BAG_INFO)));
 
         assertFalse(profile.isAllowFetch());
