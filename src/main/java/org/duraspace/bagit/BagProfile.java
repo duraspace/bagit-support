@@ -446,23 +446,31 @@ public class BagProfile {
      * @param config the BagConfig
      */
     public void validateConfig(final BagConfig config) {
+        final HashMap<String, Map<String, String>> tagMap = new HashMap<>();
+        config.getTagFiles().forEach(tag -> tagMap.put(tag, config.getFieldsForTagFile(tag)));
+        validateTags(tagMap);
+    }
+
+    /**
+     * Validate a set of tag files
+     *
+     * @param tags A mapping of tag file names and their fields to validate
+     */
+    public void validateTags(final Map<String, Map<String, String>> tags) {
         for (final String section : sections) {
             final String tagFile = section.toLowerCase() + ".txt";
-            if (config.hasTagFile(tagFile)) {
+            if (tags.containsKey(tagFile)) {
                 try {
-                    ProfileValidationUtil.validate(section, getMetadataFields(section),
-                                                   config.getFieldsForTagFile(tagFile));
-
+                    ProfileValidationUtil.validate(section, getMetadataFields(section), tags.get(tagFile));
                     ProfileValidationUtil.validateTagIsAllowed(Paths.get(tagFile), tagFilesAllowed);
                 } catch (ProfileValidationException e) {
                     throw new RuntimeException(e.getMessage(), e);
                 }
             } else {
-                throw new RuntimeException(String.format("Error missing section %s from bag config", section));
+                throw new RuntimeException(String.format("Error missing section %s", section));
             }
         }
     }
-
 
     /**
      * Validate a given {@link Bag} against the current profile
