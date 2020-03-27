@@ -28,6 +28,7 @@ import static org.duraspace.bagit.BagProfileConstants.TAG_FILES_REQUIRED;
 import static org.duraspace.bagit.BagProfileConstants.TAG_MANIFESTS_REQUIRED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -147,6 +148,15 @@ public class BagProfileTest {
         assertTrue(profile.getTagFilesRequired().isEmpty());
         assertTrue(profile.getAllowedTagAlgorithms().isEmpty());
         assertTrue(profile.getAllowedPayloadAlgorithms().isEmpty());
+    }
+
+    @Test
+    public void testLoadsEmptyMap() throws URISyntaxException, IOException {
+        final String profilePath = "profiles/profileNoBagInfo.json";
+        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(profilePath)));
+        final Map<String, ProfileFieldRule> bagInfoFields = profile.getMetadataFields(BAG_INFO);
+        assertNotNull(bagInfoFields);
+        assertTrue(bagInfoFields.isEmpty());
     }
 
     @Test
