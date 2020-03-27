@@ -2,6 +2,7 @@ Bag-Size : 4 KB
 Payload-Oxum : 4096.1
 Bagging-Date : 2016-12-13
 Source-Organization: bagit-support
-Organization-Address: localhost
+Organization-Address: localhost-
+  dot-localdomain
 Contact-Name: test-user
 Contact-Phone: phone-number

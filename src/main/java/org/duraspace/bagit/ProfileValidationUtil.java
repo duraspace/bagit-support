@@ -210,16 +210,18 @@ public class ProfileValidationUtil {
      */
     private static Map<String, String> readInfo(final Path info) throws IOException {
         logger.debug("Trying to read info file {}", info);
+        final Pattern colon = Pattern.compile(":");
+        final Pattern space = Pattern.compile("^\\s+");
         final Map<String, String> data = new HashMap<>();
         final AtomicReference<String> previousKey = new AtomicReference<>("");
 
         // if a line starts indented, it is part of the previous key so we track what key we're working on
         try (Stream<String> lines = Files.lines(info)) {
             lines.forEach(line -> {
-                if (line.matches("^\\s+")) {
-                    data.merge(previousKey.get(), line, String::concat);
+                if (space.matcher(line).find()) {
+                    data.merge(previousKey.get(), line.trim(), String::concat);
                 } else {
-                    final String[] split = line.split(":");
+                    final String[] split = colon.split(line, 2);
                     final String key = split[0].trim();
                     final String value = split[1].trim();
                     previousKey.set(key);
