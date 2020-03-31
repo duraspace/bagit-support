@@ -8,6 +8,7 @@ import static org.duraspace.bagit.BagProfileConstants.ACCEPT_BAGIT_VERSION;
 import static org.duraspace.bagit.BagProfileConstants.ACCEPT_SERIALIZATION;
 import static org.duraspace.bagit.BagProfileConstants.ALLOW_FETCH_TXT;
 import static org.duraspace.bagit.BagProfileConstants.BAGIT_PROFILE_INFO;
+import static org.duraspace.bagit.BagProfileConstants.BAGIT_TAG_SUFFIX;
 import static org.duraspace.bagit.BagProfileConstants.BAG_INFO;
 import static org.duraspace.bagit.BagProfileConstants.MANIFESTS_ALLOWED;
 import static org.duraspace.bagit.BagProfileConstants.MANIFESTS_REQUIRED;
@@ -33,6 +34,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -440,30 +443,60 @@ public class BagProfile {
      * @param config the BagConfig
      */
     public void validateConfig(final BagConfig config) {
-        final HashMap<String, Map<String, String>> tagMap = new HashMap<>();
-        config.getTagFiles().forEach(tag -> tagMap.put(tag, config.getFieldsForTagFile(tag)));
-        validateTags(tagMap);
+        checkRequiredTagsExist(config.getTagFiles());
+        for (final String section : config.getTagFiles()) {
+            validateTag(section, config.getFieldsForTagFile(section));
+        }
     }
 
     /**
-     * Validate a set of tag files
+     * Test that all required tag files exist
      *
-     * @param tags A mapping of tag file names and their fields to validate
+     * @param tags the name of each tag file to check
      */
-    public void validateTags(final Map<String, Map<String, String>> tags) {
-        for (final String section : sections) {
-            final String tagFile = section.toLowerCase() + ".txt";
-            if (tags.containsKey(tagFile)) {
-                try {
-                    ProfileValidationUtil.validate(section, getMetadataFields(section), tags.get(tagFile));
-                    ProfileValidationUtil.validateTagIsAllowed(Paths.get(tagFile), tagFilesAllowed);
-                } catch (ProfileValidationException e) {
-                    throw new RuntimeException(e.getMessage(), e);
-                }
-            } else {
-                throw new RuntimeException(String.format("Error missing section %s", section));
+    public void checkRequiredTagsExist(final Set<String> tags) {
+        for (String section : metadataFields.keySet()) {
+            final String expected = section + BAGIT_TAG_SUFFIX;
+            if (!tags.contains(expected)) {
+                throw new RuntimeException("Missing configuration for required tag file " + expected);
             }
         }
+    }
+
+    /**
+     * Validate a Mapping of key value pairs for a tag file
+     *
+     * @param filename the name of the tag file to validate
+     * @param fields A mapping of tag file names and their fields to validate
+     */
+    public void validateTag(final String filename, final Map<String, String> fields) {
+        // strip the trailing file extension
+        final String section = getSection(filename);
+        logger.debug("Checking validation for {}", section);
+        if (metadataFields.containsKey(section)) {
+            try {
+                ProfileValidationUtil.validate(section, getMetadataFields(section), fields);
+                ProfileValidationUtil.validateTagIsAllowed(Paths.get(filename), tagFilesAllowed);
+            } catch (ProfileValidationException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * Normalize a filename to be what we expect is held in the MetadataFields key set
+     *
+     * @param filename the filename to normalize
+     * @return the filename without a tag extension, so that it can be used with the metadataFields
+     */
+    private String getSection(final String filename) {
+        // use two regexps
+        // the main pattern: two groups - a wildcard matcher for the filename and the tag suffix
+        // the replacement: just the first capture group
+        final String replacement = "$1";
+        final Pattern tagEnding = Pattern.compile("(.*)(\\.txt)");
+        final Matcher matcher = tagEnding.matcher(filename.toLowerCase());
+        return matcher.replaceAll(replacement);
     }
 
     /**
