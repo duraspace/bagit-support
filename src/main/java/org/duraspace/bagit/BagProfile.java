@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.domain.Manifest;
+import org.slf4j.Logger;
 
 /**
  * A BagProfile contains the entire contents of a BagIt profile specified through the profile's json.
@@ -187,8 +188,8 @@ public class BagProfile {
         payloadDigestAlgorithms = arrayValues(json, MANIFESTS_REQUIRED);
         tagDigestAlgorithms = arrayValues(json, TAG_MANIFESTS_REQUIRED);
 
-        metadataFields.put(BAG_INFO, metadataFields(json.get(BAG_INFO)));
-        sections.add(BAG_INFO);
+        metadataFields.put(BAG_INFO.toLowerCase(), metadataFields(json.get(BAG_INFO)));
+        sections.add(BAG_INFO.toLowerCase());
 
         if (json.get(OTHER_INFO) != null) {
             loadOtherTags(json);
@@ -211,7 +212,7 @@ public class BagProfile {
                 final Iterator<Map.Entry<String, JsonNode>> fields = entries.fields();
                 while (fields.hasNext()) {
                     final Map.Entry<String, JsonNode> entry = fields.next();
-                    final String tagName = entry.getKey();
+                    final String tagName = entry.getKey().toLowerCase();
                     sections.add(tagName);
                     metadataFields.put(tagName, metadataFields(entry.getValue()));
                 }
@@ -416,7 +417,7 @@ public class BagProfile {
      * @return map of tag = set of acceptable values, or null if tagFile doesn't exist
      */
     public Map<String, ProfileFieldRule> getMetadataFields(final String tagFile) {
-        return metadataFields.get(tagFile);
+        return metadataFields.get(tagFile.toLowerCase());
     }
 
     /**

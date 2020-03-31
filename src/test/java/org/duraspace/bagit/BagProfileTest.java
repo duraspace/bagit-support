@@ -150,8 +150,8 @@ public class BagProfileTest {
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
 
         assertTrue(profile.getSectionNames().stream().anyMatch(t -> t.equalsIgnoreCase(BAG_INFO)));
-        assertTrue(profile.getSectionNames().stream().anyMatch(t -> t.equals(aptrustInfo)));
-        assertTrue(profile.getSectionNames().stream().noneMatch(t -> t.equals("Wrong-Tags")));
+        assertTrue(profile.getSectionNames().stream().anyMatch(t -> t.equalsIgnoreCase(aptrustInfo)));
+        assertTrue(profile.getSectionNames().stream().noneMatch(t -> t.equalsIgnoreCase("Wrong-Tags")));
         assertTrue(profile.getMetadataFields(aptrustInfo).containsKey(TITLE_KEY));
         assertTrue(profile.getMetadataFields(aptrustInfo).containsKey(ACCESS_KEY));
         assertTrue(profile.getMetadataFields(aptrustInfo).get(ACCESS_KEY).getValues().contains("Consortia"));
