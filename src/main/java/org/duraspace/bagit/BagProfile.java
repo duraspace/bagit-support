@@ -138,7 +138,6 @@ public class BagProfile {
     private Set<String> payloadDigestAlgorithms;
     private Set<String> tagDigestAlgorithms;
 
-    private Set<String> sections = new HashSet<>();
     private Map<String, Map<String, ProfileFieldRule>> metadataFields = new HashMap<>();
     private Map<String, String> profileMetadata = new HashMap<>();
 
@@ -189,7 +188,6 @@ public class BagProfile {
         tagDigestAlgorithms = arrayValues(json, TAG_MANIFESTS_REQUIRED);
 
         metadataFields.put(BAG_INFO.toLowerCase(), metadataFields(json.get(BAG_INFO)));
-        sections.add(BAG_INFO.toLowerCase());
 
         if (json.get(OTHER_INFO) != null) {
             loadOtherTags(json);
@@ -213,12 +211,10 @@ public class BagProfile {
                 while (fields.hasNext()) {
                     final Map.Entry<String, JsonNode> entry = fields.next();
                     final String tagName = entry.getKey().toLowerCase();
-                    sections.add(tagName);
                     metadataFields.put(tagName, metadataFields(entry.getValue()));
                 }
             }
         }
-        logger.debug("tagFiles is {}", sections);
         logger.debug("metadataFields is {}", metadataFields);
     }
 
@@ -426,7 +422,7 @@ public class BagProfile {
      * @return set of section names
      */
     public Set<String> getSectionNames() {
-        return sections;
+        return metadataFields.keySet();
     }
 
     /**
@@ -528,7 +524,7 @@ public class BagProfile {
         }
 
         // check *-info required fields
-        for (String section : sections) {
+        for (String section : metadataFields.keySet()) {
             final String tagFile = section.toLowerCase() + ".txt";
             final Path resolved = root.resolve(tagFile);
             try {
