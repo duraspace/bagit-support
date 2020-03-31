@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.exceptions.CorruptChecksumException;
@@ -143,11 +144,16 @@ public class BagWriterTest {
         final List<String> extraLines = Files.readAllLines(extra);
         assertThat(extraLines).contains("test-key: test-value");
 
-        // Assert that tagmanifest-*.txt contains the manifest checksums
-        final List<String> sha1TagLines = Files.readAllLines(sha1Tagmanifest);
-        assertThat(sha1TagLines).anySatisfy(entry -> {
-            assertThat(entry).containsPattern("manifest-sha1.txt|manifest-sha256.txt|manifest-sha512.txt");
-        });
+        // Assert that tagmanifest-{sha1,sha256,sha512}.txt contain the manifest checksums
+        final String manifestRegex = sha1.bagitName() + "|" + sha256.bagitName() + "|" + sha512.bagitName();
+        for (Path tagmanifest : Sets.newHashSet(sha1Tagmanifest, sha256Tagmanifest, sha512Tagmanifest)) {
+            try (Stream<String> lines = Files.lines(tagmanifest)) {
+                assertThat(lines)
+                    .filteredOn(line -> line.contains("manifest"))
+                    .hasSize(3)
+                    .allSatisfy(entry -> assertThat(entry).containsPattern(manifestRegex));
+            }
+        }
 
         // Finally, pass BagProfile validation and BagIt validation
         final BagReader reader = new BagReader();
