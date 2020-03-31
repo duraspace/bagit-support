@@ -35,8 +35,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.loc.repository.bagit.domain.Bag;
@@ -189,7 +187,7 @@ public class BagProfile {
         payloadDigestAlgorithms = arrayValues(json, MANIFESTS_REQUIRED);
         tagDigestAlgorithms = arrayValues(json, TAG_MANIFESTS_REQUIRED);
 
-        metadataFields.put(BAG_INFO, metadataFields(json, BAG_INFO));
+        metadataFields.put(BAG_INFO, metadataFields(json.get(BAG_INFO)));
         sections.add(BAG_INFO);
 
         if (json.get(OTHER_INFO) != null) {
@@ -207,14 +205,15 @@ public class BagProfile {
     private void loadOtherTags(final JsonNode json) {
         final JsonNode arrayTags = json.get(OTHER_INFO);
         if (arrayTags != null && arrayTags.isArray()) {
-            arrayTags.forEach(tag -> tag.fieldNames().forEachRemaining(sections::add));
             final Iterator<JsonNode> arrayEntries = arrayTags.elements();
             while (arrayEntries.hasNext()) {
                 final JsonNode entries = arrayEntries.next();
-                final Iterator<String> tagNames = entries.fieldNames();
-                while (tagNames.hasNext()) {
-                    final String tagName = tagNames.next();
-                    metadataFields.put(tagName, metadataFields(entries, tagName));
+                final Iterator<Map.Entry<String, JsonNode>> fields = entries.fields();
+                while (fields.hasNext()) {
+                    final Map.Entry<String, JsonNode> entry = fields.next();
+                    final String tagName = entry.getKey();
+                    sections.add(tagName);
+                    metadataFields.put(tagName, metadataFields(entry.getValue()));
                 }
             }
         }
@@ -240,18 +239,16 @@ public class BagProfile {
      * Loads required tags and allowed values
      *
      * @param json json to parse
-     * @param key key in json to load tags from
      * @return map of tags => set of allowed values
      */
-    private static Map<String, ProfileFieldRule> metadataFields(final JsonNode json, final String key) {
-        final JsonNode fields = json.get(key);
-
-        if (fields == null) {
+    private static Map<String, ProfileFieldRule> metadataFields(final JsonNode json) {
+        if (json == null) {
             return Collections.emptyMap();
         }
 
         final Map<String, ProfileFieldRule> results = new HashMap<>();
-        for (final Iterator<String> it = fields.fieldNames(); it.hasNext(); ) {
+        // why not use the entry to iterate?
+        for (final Iterator<String> it = json.fieldNames(); it.hasNext(); ) {
             // fields to pass to the ProfileFieldRule constructor
             boolean required = false;
             boolean repeatable = true;
@@ -259,7 +256,7 @@ public class BagProfile {
             String description = "No description";
 
             final String name = it.next();
-            final JsonNode field = fields.get(name);
+            final JsonNode field = json.get(name);
 
             // read each of the fields for the ProfileFieldRule:
             // required, repeated, recommended, description, and values
@@ -496,7 +493,7 @@ public class BagProfile {
 
         // check payload manifest algorithms
         errors.append(ProfileValidationUtil.validateManifest(foundPayloadManifests, payloadDigestAlgorithms,
-                                            allowedPayloadAlgorithms, payloadIdentifier));
+                                                             allowedPayloadAlgorithms, payloadIdentifier));
 
         // check tag manifest rules files allowed
         // the reporting can be redundant if no tag manifests are found, so only check the allowed algorithms and
@@ -505,7 +502,7 @@ public class BagProfile {
             errors.append("No tag manifest found!\n");
         } else {
             errors.append(ProfileValidationUtil.validateManifest(foundTagManifests, tagDigestAlgorithms,
-                                                allowedTagAlgorithms, tagIdentifier));
+                                                                 allowedTagAlgorithms, tagIdentifier));
 
             // grab the first tag manifest and use that to check all registered tag files
             final Manifest manifest = foundTagManifests.iterator().next();
