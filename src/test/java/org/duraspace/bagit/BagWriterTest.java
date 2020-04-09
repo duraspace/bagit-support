@@ -132,7 +132,7 @@ public class BagWriterTest {
 
         // Assert that bagit.txt contains expected lines
         final List<String> bagitLines = Files.readAllLines(bagit);
-        assertThat(bagitLines).contains("BagIt-Version: 0.97", "Tag-File-Character-Encoding: UTF-8");
+        assertThat(bagitLines).containsSequence("BagIt-Version: 0.97", "Tag-File-Character-Encoding: UTF-8");
 
         // Assert that bag-info.txt contains... the bare necessities
         final List<String> bagInfoLines = Files.readAllLines(bagInfo);
