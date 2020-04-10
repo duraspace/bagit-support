@@ -42,7 +42,7 @@ public class BagWriter {
     /**
      * Version of the BagIt specification implemented
      */
-    public static String BAGIT_VERSION = "0.97";
+    public static String BAGIT_VERSION = "1.0";
 
     /**
      * Create a new, empty Bag
