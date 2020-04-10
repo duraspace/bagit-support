@@ -4,6 +4,7 @@
  */
 package org.duraspace.bagit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.duraspace.bagit.BagConfig.ACCESS_KEY;
 import static org.duraspace.bagit.BagConfig.BAGGING_DATE_KEY;
 import static org.duraspace.bagit.BagConfig.BAG_SIZE_KEY;
@@ -218,6 +219,7 @@ public class BagProfileTest {
     public void testInvalidBagProfile() throws IOException, URISyntaxException {
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(invalidPath)));
         try {
+            assertThat(profile.getIdentifier()).isEmpty();
             validateProfile(profile);
             Assert.fail("Should throw an exception");
         } catch (RuntimeException e) {
@@ -448,6 +450,7 @@ public class BagProfileTest {
      */
     private void putRequiredBagInfo(final Bag bag, final BagProfile profile) {
         final Map<String, ProfileFieldRule> bagInfoMeta = profile.getMetadataFields(BAG_INFO);
+        bag.getMetadata().add(BAGIT_PROFILE_IDENTIFIER, profile.getIdentifier());
         for (Map.Entry<String, ProfileFieldRule> entry : bagInfoMeta.entrySet()) {
             if (entry.getValue().isRequired())  {
                 bag.getMetadata().add(entry.getKey(), testValue);

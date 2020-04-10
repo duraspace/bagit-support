@@ -292,6 +292,15 @@ public class BagProfile {
     }
 
     /**
+     * Retrieve the BagIt-Profile-Identifier for this profile
+     *
+     * @return the BagIt-Profile-Identifier, or an empty string if none is found
+     */
+    public String getIdentifier() {
+        return profileMetadata.getOrDefault(BagProfileConstants.BAGIT_PROFILE_IDENTIFIER, "");
+    }
+
+    /**
      * Boolean flag allowing a fetch.txt file
      *
      * @return true if fetch.txt is allowed, false otherwise
