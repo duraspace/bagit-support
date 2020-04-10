@@ -21,6 +21,7 @@ import java.security.MessageDigest;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Utility to write BagIt bags.
@@ -60,7 +61,7 @@ public class BagWriter {
         tagFileRegistry = new HashMap<>();
         tagRegistry = new HashMap<>();
 
-        final Map<String, String> bagitValues = new HashMap<>();
+        final Map<String, String> bagitValues = new TreeMap<>();
         bagitValues.put("BagIt-Version", BAGIT_VERSION);
         bagitValues.put("Tag-File-Character-Encoding", "UTF-8");
         tagRegistry.put("bagit.txt", bagitValues);
