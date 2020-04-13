@@ -2,6 +2,10 @@ language: java
 sudo: false
 jdk: openjdk8
 
+os:
+  - linux
+  - windows
+
 before_install:
   - "echo $JAVA_OPTS"
 
@@ -11,4 +15,4 @@ script:
   - mvn javadoc:test-aggregate
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then bash <(curl -s https://codecov.io/bash); fi
