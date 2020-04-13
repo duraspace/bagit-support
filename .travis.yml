@@ -11,9 +11,9 @@ env:
 
 before_install:
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then
-      echo "Installing java ${JAVA_VERSION};
+      echo "Installing java ${JAVA_VERSION}";
       choco install openjdk8 --version ${JAVA_VERSION};
-      echo "Installing maven ${MAVEN_VERSION};
+      echo "Installing maven ${MAVEN_VERSION}";
       choco install maven --version ${MAVEN_VERSION};
       export JAVA_HOME="/c/Program Files/OpenJDK/openjdk-8u242-b08";
       export MAVEN_HOME="/c/ProgramData/chocolatey/lib/maven/apache-maven-${MAVEN_VERSION}/bin";
