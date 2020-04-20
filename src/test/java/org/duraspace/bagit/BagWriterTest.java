@@ -18,10 +18,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.exceptions.CorruptChecksumException;
@@ -142,6 +144,17 @@ public class BagWriterTest {
         final List<String> extraLines = Files.readAllLines(extra);
         assertThat(extraLines).contains("test-key: test-value");
 
+        // Assert that tagmanifest-{sha1,sha256,sha512}.txt contain the manifest checksums
+        final String manifestRegex = sha1.bagitName() + "|" + sha256.bagitName() + "|" + sha512.bagitName();
+        for (Path tagmanifest : Sets.newHashSet(sha1Tagmanifest, sha256Tagmanifest, sha512Tagmanifest)) {
+            try (Stream<String> lines = Files.lines(tagmanifest)) {
+                assertThat(lines)
+                    .filteredOn(line -> line.contains("manifest"))
+                    .hasSize(3)
+                    .allSatisfy(entry -> assertThat(entry).containsPattern(manifestRegex));
+            }
+        }
+
         // Finally, pass BagProfile validation and BagIt validation
         final BagReader reader = new BagReader();
         final BagVerifier verifier = new BagVerifier();
@@ -158,4 +171,19 @@ public class BagWriterTest {
             fail("Unable to verify bag:\n" + e.getMessage());
         }
     }
+
+    @Test(expected = RuntimeException.class)
+    public void testAddInvalidAlgorithm() throws IOException {
+        // The message digests to use
+        final BagItDigest sha1 = BagItDigest.SHA1;
+        final BagItDigest sha256 = BagItDigest.SHA256;
+
+        // Create a writer with 3 manifest algorithms
+        Files.createDirectories(bag);
+        final BagWriter writer = new BagWriter(bag.toFile(), Sets.newHashSet(sha1));
+
+        // we don't need to pass any files, just the errant BagItDigest
+        writer.registerChecksums(sha256, Collections.emptyMap());
+    }
+
 }
