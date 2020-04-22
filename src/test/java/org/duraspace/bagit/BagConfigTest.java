@@ -4,6 +4,7 @@
  */
 package org.duraspace.bagit;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -26,7 +27,9 @@ public class BagConfigTest {
 
         final Map<String, String> bagInfo = config.getBagInfo();
         assertNotNull(bagInfo);
-        assertNotNull(bagInfo.get(BagConfig.SOURCE_ORGANIZATION_KEY));
+        assertThat(bagInfo.get(BagConfig.SOURCE_ORGANIZATION_KEY))
+            .isNotNull()
+            .isEqualTo("My University ✓");
 
         assertTrue(config.hasTagFile("aptrust-info.txt"));
         final Map<String, String> customTags = config.getFieldsForTagFile("aptrust-info.txt");
