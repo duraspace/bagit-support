@@ -55,7 +55,7 @@ public class BagWriterTest {
 
     // set up expected bag, data file, and tag files
     private final String bagName = "bag-writer-test";
-    private final String filename = "hello-writer";
+    private final String filename = "hello-writer-✓";
     private final String extraTagName = "extra-tag.txt";
 
     private Path bag;
@@ -107,7 +107,7 @@ public class BagWriterTest {
         writer.addTags(extraTagName, Maps.newHashMap("test-key", "test-value"));
         writer.addTags(extraTagName, Maps.newHashMap("additional-key", "additional-value"));
         final Map<String, String> bagInfoFields = new HashMap<>();
-        bagInfoFields.put(BagConfig.SOURCE_ORGANIZATION_KEY, "bagit-support");
+        bagInfoFields.put(BagConfig.SOURCE_ORGANIZATION_KEY, "bagit-support-✓");
         bagInfoFields.put(BagConfig.BAGGING_DATE_KEY, ISO_LOCAL_DATE.format(LocalDate.now()));
         bagInfoFields.put(BagConfig.BAG_SIZE_KEY, "0 bytes");
         bagInfoFields.put(BagConfig.PAYLOAD_OXUM_KEY, "1.0");
@@ -145,7 +145,7 @@ public class BagWriterTest {
 
         // Assert that bag-info.txt contains... the bare necessities
         final List<String> bagInfoLines = Files.readAllLines(bagInfo);
-        assertThat(bagInfoLines).contains(BagConfig.SOURCE_ORGANIZATION_KEY + ": bagit-support");
+        assertThat(bagInfoLines).contains(BagConfig.SOURCE_ORGANIZATION_KEY + ": bagit-support-✓");
 
         // Assert that extra-tag.txt exists
         final List<String> extraLines = Files.readAllLines(extra);
