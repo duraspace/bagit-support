@@ -150,6 +150,10 @@ public class BagProfileTest {
         assertTrue(profile.getTagFilesRequired().isEmpty());
         assertTrue(profile.getAllowedTagAlgorithms().isEmpty());
         assertTrue(profile.getAllowedPayloadAlgorithms().isEmpty());
+        assertThat(profile.getProfileMetadata())
+            .isNotNull()
+            .containsKey(EXTERNAL_DESCRIPTION_KEY)
+            .hasEntrySatisfying(EXTERNAL_DESCRIPTION_KEY, entry -> assertThat(entry).contains("✓"));
     }
 
     @Test
