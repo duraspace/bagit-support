@@ -494,7 +494,7 @@ public class BagProfile {
         // the main pattern: two groups - a wildcard matcher for the filename and the tag suffix
         // the replacement: just the first capture group
         final String replacement = "$1";
-        final Pattern tagEnding = Pattern.compile("(.*)(\\.txt)");
+        final Pattern tagEnding = Pattern.compile("(.*)(\\" + BAGIT_TAG_SUFFIX + ")");
         final Matcher matcher = tagEnding.matcher(filename.toLowerCase());
         return matcher.replaceAll(replacement);
     }
@@ -558,7 +558,7 @@ public class BagProfile {
 
         // check *-info required fields
         for (String section : metadataFields.keySet()) {
-            final String tagFile = section.toLowerCase() + ".txt";
+            final String tagFile = section.toLowerCase() + BAGIT_TAG_SUFFIX;
             final Path resolved = root.resolve(tagFile);
             try {
                 ProfileValidationUtil.validate(section, metadataFields.get(section), resolved);
