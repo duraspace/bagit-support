@@ -452,8 +452,8 @@ public class BagProfile {
     /**
      * Validate a configuration for tag files based on a mapping of BagIt tag filenames to key-value pairs.
      *
-     * e.g. the filename "bag-info.txt" could contain the pairs "Source-Organization" -> "DuraSpace" and
-     * "Organization-Address" -> "The Cloud"
+     * e.g. the filename "bag-info.txt" could contain the pairs "Source-Organization: DuraSpace" and
+     * "Organization-Address: The Cloud"
      *
      * @param config the Map containing the configuration of BagIt tag files
      */
