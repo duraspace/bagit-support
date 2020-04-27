@@ -99,6 +99,7 @@ public class BagWriterTest {
         final Map<File, String> sha512Sums = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha512MD.digest()));
 
         writer.addTags(extraTagName, Maps.newHashMap("test-key", "test-value"));
+        writer.addTags(extraTagName, Maps.newHashMap("additional-key", "additional-value"));
         final Map<String, String> bagInfoFields = new HashMap<>();
         bagInfoFields.put(BagConfig.SOURCE_ORGANIZATION_KEY, "bagit-support");
         bagInfoFields.put(BagConfig.BAGGING_DATE_KEY, ISO_LOCAL_DATE.format(LocalDate.now()));
@@ -142,7 +143,9 @@ public class BagWriterTest {
 
         // Assert that extra-tag.txt exists
         final List<String> extraLines = Files.readAllLines(extra);
-        assertThat(extraLines).contains("test-key: test-value");
+        assertThat(extraLines)
+            .hasSize(2)
+            .contains("test-key: test-value", "additional-key: additional-value");
 
         // Assert that tagmanifest-{sha1,sha256,sha512}.txt contain the manifest checksums
         final String manifestRegex = sha1.bagitName() + "|" + sha256.bagitName() + "|" + sha512.bagitName();
