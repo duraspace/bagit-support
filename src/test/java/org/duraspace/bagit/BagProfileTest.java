@@ -4,6 +4,7 @@
  */
 package org.duraspace.bagit;
 
+import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.duraspace.bagit.BagConfig.ACCESS_KEY;
 import static org.duraspace.bagit.BagConfig.BAGGING_DATE_KEY;
@@ -44,6 +45,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.domain.FetchItem;
@@ -178,8 +181,12 @@ public class BagProfileTest {
     @Test
     public void testGoodConfig() throws Exception {
         final BagConfig config = new BagConfig(resolveResourcePath(bagitConfig).toFile());
+        final Map<String, Map<String, String>> configAsMap =
+            config.getTagFiles().stream()
+                  .collect(Collectors.toMap(identity(), config::getFieldsForTagFile));
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
         profile.validateConfig(config);
+        profile.validateTagFiles(configAsMap);
     }
 
     @Test(expected = RuntimeException.class)

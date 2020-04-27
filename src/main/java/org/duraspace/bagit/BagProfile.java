@@ -450,11 +450,24 @@ public class BagProfile {
     }
 
     /**
+     * Validate a configuration for tag files based on a mapping of BagIt tag filenames to key-value pairs.
+     *
+     * e.g. the filename "bag-info.txt" could contain the pairs "Source-Organization" -> "DuraSpace" and
+     * "Organization-Address" -> "The Cloud"
+     *
+     * @param config the Map containing the configuration of BagIt tag files
+     */
+    public void validateTagFiles(final Map<String, Map<String, String>> config) {
+        checkRequiredTagsExist(config.keySet());
+        config.forEach(this::validateTag);
+    }
+
+    /**
      * Test that all required tag files exist
      *
      * @param tags the name of each tag file to check
      */
-    public void checkRequiredTagsExist(final Set<String> tags) {
+    private void checkRequiredTagsExist(final Set<String> tags) {
         for (String section : metadataFields.keySet()) {
             final String expected = section + BAGIT_TAG_SUFFIX;
             if (!tags.contains(expected)) {
@@ -469,7 +482,7 @@ public class BagProfile {
      * @param filename the name of the tag file to validate
      * @param fields A mapping of tag file names and their fields to validate
      */
-    public void validateTag(final String filename, final Map<String, String> fields) {
+    private void validateTag(final String filename, final Map<String, String> fields) {
         // strip the trailing file extension
         final String section = getSection(filename);
         logger.debug("Checking validation for {}", section);
