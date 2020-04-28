@@ -101,7 +101,10 @@ public class ProfileValidationUtilTest {
     public void testOnDiskInfoValidation() throws ProfileValidationException, IOException {
         rules.clear();
         rules.put("Source-Organization",
-                  new ProfileFieldRule(required, repeatable, recommended, "", Collections.emptySet()));
+                  new ProfileFieldRule(required, repeatable, recommended, "", Collections.singleton("bagit-support")));
+        rules.put("Organization-Address",
+                  new ProfileFieldRule(required, repeatable, recommended, "",
+                                       Collections.singleton("localhost-dot-localdomain")));
         final String bagInfoPath = "src/test/resources/sample/bag/bag-info.txt";
         ProfileValidationUtil.validate("profile-section", rules, Paths.get(bagInfoPath));
     }
