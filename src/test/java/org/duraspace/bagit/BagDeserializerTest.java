@@ -39,8 +39,11 @@ public class BagDeserializerTest {
     @Parameters(name = "extract {0}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][] {
-            {"bag-tar.tar", "bag-tar"}, {"bag-zip.zip", "bag-zip"}, {"bag-gzip.tar.gz", "bag-gzip"},
-            {"bag-tar-mismatch.tar", "bag-tar"}
+            {"bag-tar.tar", "bag-tar"},
+            {"bag-tar-no-dirs.tar", "bag-tar"},
+            {"bag-zip.zip", "bag-zip"},
+            {"bag-zip-no-dirs.zip", "bag-zip"},
+            {"bag-gzip.tar.gz", "bag-gzip"},
         });
     }
 
