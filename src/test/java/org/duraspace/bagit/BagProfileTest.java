@@ -4,6 +4,7 @@
  */
 package org.duraspace.bagit;
 
+import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.duraspace.bagit.BagConfig.ACCESS_KEY;
 import static org.duraspace.bagit.BagConfig.BAGGING_DATE_KEY;
@@ -28,6 +29,7 @@ import static org.duraspace.bagit.BagProfileConstants.TAG_FILES_REQUIRED;
 import static org.duraspace.bagit.BagProfileConstants.TAG_MANIFESTS_REQUIRED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.domain.FetchItem;
@@ -131,6 +134,11 @@ public class BagProfileTest {
         assertTrue(profile.getMetadataFields().get(PAYLOAD_OXUM_KEY).isRequired());
         assertFalse(profile.getMetadataFields().get(CONTACT_EMAIL_KEY).isRequired());
 
+        assertTrue(profile.getMetadataFields().get(BAGIT_PROFILE_IDENTIFIER).isRepeatable());
+        assertFalse(profile.getMetadataFields().get(BAGIT_PROFILE_IDENTIFIER).isRequired());
+        assertFalse(profile.getMetadataFields().get(BAGIT_PROFILE_IDENTIFIER).isRecommended());
+        assertEquals(profile.getMetadataFields().get(BAGIT_PROFILE_IDENTIFIER).getDescription(), "No description");
+
         assertTrue(profile.getSectionNames().stream().allMatch(t -> t.equalsIgnoreCase(BAG_INFO)));
 
         assertFalse(profile.isAllowFetch());
@@ -145,13 +153,22 @@ public class BagProfileTest {
     }
 
     @Test
+    public void testLoadsEmptyMap() throws URISyntaxException, IOException {
+        final String profilePath = "profiles/profileNoBagInfo.json";
+        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(profilePath)));
+        final Map<String, ProfileFieldRule> bagInfoFields = profile.getMetadataFields(BAG_INFO);
+        assertNotNull(bagInfoFields);
+        assertTrue(bagInfoFields.isEmpty());
+    }
+
+    @Test
     public void testExtendedProfile() throws Exception {
         final String aptrustInfo = "APTrust-Info";
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
 
         assertTrue(profile.getSectionNames().stream().anyMatch(t -> t.equalsIgnoreCase(BAG_INFO)));
-        assertTrue(profile.getSectionNames().stream().anyMatch(t -> t.equals(aptrustInfo)));
-        assertTrue(profile.getSectionNames().stream().noneMatch(t -> t.equals("Wrong-Tags")));
+        assertTrue(profile.getSectionNames().stream().anyMatch(t -> t.equalsIgnoreCase(aptrustInfo)));
+        assertTrue(profile.getSectionNames().stream().noneMatch(t -> t.equalsIgnoreCase("Wrong-Tags")));
         assertTrue(profile.getMetadataFields(aptrustInfo).containsKey(TITLE_KEY));
         assertTrue(profile.getMetadataFields(aptrustInfo).containsKey(ACCESS_KEY));
         assertTrue(profile.getMetadataFields(aptrustInfo).get(ACCESS_KEY).getValues().contains("Consortia"));
@@ -163,8 +180,12 @@ public class BagProfileTest {
     @Test
     public void testGoodConfig() throws Exception {
         final BagConfig config = new BagConfig(resolveResourcePath(bagitConfig).toFile());
+        final Map<String, Map<String, String>> configAsMap =
+            config.getTagFiles().stream()
+                  .collect(Collectors.toMap(identity(), config::getFieldsForTagFile));
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
         profile.validateConfig(config);
+        profile.validateTagFiles(configAsMap);
     }
 
     @Test(expected = RuntimeException.class)

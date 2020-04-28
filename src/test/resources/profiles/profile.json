@@ -53,6 +53,10 @@
       },
       "Payload-Oxum":{
          "required":true
+      },
+      "BagIt-Profile-Identifier": {
+         "recommended": false,
+         "description": ""
       }
    },
    "Manifests-Required":[

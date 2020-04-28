@@ -8,6 +8,7 @@ import static org.duraspace.bagit.BagProfileConstants.ACCEPT_BAGIT_VERSION;
 import static org.duraspace.bagit.BagProfileConstants.ACCEPT_SERIALIZATION;
 import static org.duraspace.bagit.BagProfileConstants.ALLOW_FETCH_TXT;
 import static org.duraspace.bagit.BagProfileConstants.BAGIT_PROFILE_INFO;
+import static org.duraspace.bagit.BagProfileConstants.BAGIT_TAG_SUFFIX;
 import static org.duraspace.bagit.BagProfileConstants.BAG_INFO;
 import static org.duraspace.bagit.BagProfileConstants.MANIFESTS_ALLOWED;
 import static org.duraspace.bagit.BagProfileConstants.MANIFESTS_REQUIRED;
@@ -33,14 +34,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.domain.Manifest;
+import org.slf4j.Logger;
 
 /**
  * A BagProfile contains the entire contents of a BagIt profile specified through the profile's json.
@@ -139,7 +141,6 @@ public class BagProfile {
     private Set<String> payloadDigestAlgorithms;
     private Set<String> tagDigestAlgorithms;
 
-    private Set<String> sections = new HashSet<>();
     private Map<String, Map<String, ProfileFieldRule>> metadataFields = new HashMap<>();
     private Map<String, String> profileMetadata = new HashMap<>();
 
@@ -189,8 +190,7 @@ public class BagProfile {
         payloadDigestAlgorithms = arrayValues(json, MANIFESTS_REQUIRED);
         tagDigestAlgorithms = arrayValues(json, TAG_MANIFESTS_REQUIRED);
 
-        metadataFields.put(BAG_INFO, metadataFields(json, BAG_INFO));
-        sections.add(BAG_INFO);
+        metadataFields.put(BAG_INFO.toLowerCase(), metadataFields(json.get(BAG_INFO)));
 
         if (json.get(OTHER_INFO) != null) {
             loadOtherTags(json);
@@ -207,18 +207,17 @@ public class BagProfile {
     private void loadOtherTags(final JsonNode json) {
         final JsonNode arrayTags = json.get(OTHER_INFO);
         if (arrayTags != null && arrayTags.isArray()) {
-            arrayTags.forEach(tag -> tag.fieldNames().forEachRemaining(sections::add));
             final Iterator<JsonNode> arrayEntries = arrayTags.elements();
             while (arrayEntries.hasNext()) {
                 final JsonNode entries = arrayEntries.next();
-                final Iterator<String> tagNames = entries.fieldNames();
-                while (tagNames.hasNext()) {
-                    final String tagName = tagNames.next();
-                    metadataFields.put(tagName, metadataFields(entries, tagName));
+                final Iterator<Map.Entry<String, JsonNode>> fields = entries.fields();
+                while (fields.hasNext()) {
+                    final Map.Entry<String, JsonNode> entry = fields.next();
+                    final String tagName = entry.getKey().toLowerCase();
+                    metadataFields.put(tagName, metadataFields(entry.getValue()));
                 }
             }
         }
-        logger.debug("tagFiles is {}", sections);
         logger.debug("metadataFields is {}", metadataFields);
     }
 
@@ -240,18 +239,16 @@ public class BagProfile {
      * Loads required tags and allowed values
      *
      * @param json json to parse
-     * @param key key in json to load tags from
      * @return map of tags => set of allowed values
      */
-    private static Map<String, ProfileFieldRule> metadataFields(final JsonNode json, final String key) {
-        final JsonNode fields = json.get(key);
-
-        if (fields == null) {
+    private static Map<String, ProfileFieldRule> metadataFields(final JsonNode json) {
+        if (json == null) {
             return Collections.emptyMap();
         }
 
         final Map<String, ProfileFieldRule> results = new HashMap<>();
-        for (final Iterator<String> it = fields.fieldNames(); it.hasNext(); ) {
+        // why not use the entry to iterate?
+        for (final Iterator<String> it = json.fieldNames(); it.hasNext(); ) {
             // fields to pass to the ProfileFieldRule constructor
             boolean required = false;
             boolean repeatable = true;
@@ -259,7 +256,7 @@ public class BagProfile {
             String description = "No description";
 
             final String name = it.next();
-            final JsonNode field = fields.get(name);
+            final JsonNode field = json.get(name);
 
             // read each of the fields for the ProfileFieldRule:
             // required, repeated, recommended, description, and values
@@ -419,7 +416,7 @@ public class BagProfile {
      * @return map of tag = set of acceptable values, or null if tagFile doesn't exist
      */
     public Map<String, ProfileFieldRule> getMetadataFields(final String tagFile) {
-        return metadataFields.get(tagFile);
+        return metadataFields.get(tagFile.toLowerCase());
     }
 
     /**
@@ -428,7 +425,7 @@ public class BagProfile {
      * @return set of section names
      */
     public Set<String> getSectionNames() {
-        return sections;
+        return metadataFields.keySet();
     }
 
     /**
@@ -446,23 +443,74 @@ public class BagProfile {
      * @param config the BagConfig
      */
     public void validateConfig(final BagConfig config) {
-        for (final String section : sections) {
-            final String tagFile = section.toLowerCase() + ".txt";
-            if (config.hasTagFile(tagFile)) {
-                try {
-                    ProfileValidationUtil.validate(section, getMetadataFields(section),
-                                                   config.getFieldsForTagFile(tagFile));
+        checkRequiredTagsExist(config.getTagFiles());
+        for (final String section : config.getTagFiles()) {
+            validateTag(section, config.getFieldsForTagFile(section));
+        }
+    }
 
-                    ProfileValidationUtil.validateTagIsAllowed(Paths.get(tagFile), tagFilesAllowed);
-                } catch (ProfileValidationException e) {
-                    throw new RuntimeException(e.getMessage(), e);
-                }
-            } else {
-                throw new RuntimeException(String.format("Error missing section %s from bag config", section));
+    /**
+     * Validate a configuration for tag files based on a mapping of BagIt tag filenames to key-value pairs.
+     *
+     * e.g. the filename "bag-info.txt" could contain the pairs "Source-Organization: DuraSpace" and
+     * "Organization-Address: The Cloud"
+     *
+     * @param config the Map containing the configuration of BagIt tag files
+     */
+    public void validateTagFiles(final Map<String, Map<String, String>> config) {
+        checkRequiredTagsExist(config.keySet());
+        config.forEach(this::validateTag);
+    }
+
+    /**
+     * Test that all required tag files exist
+     *
+     * @param tags the name of each tag file to check
+     */
+    private void checkRequiredTagsExist(final Set<String> tags) {
+        for (String section : metadataFields.keySet()) {
+            final String expected = section + BAGIT_TAG_SUFFIX;
+            if (!tags.contains(expected)) {
+                throw new RuntimeException("Missing configuration for required tag file " + expected);
             }
         }
     }
 
+    /**
+     * Validate a Mapping of key value pairs for a tag file
+     *
+     * @param filename the name of the tag file to validate
+     * @param fields A mapping of tag file names and their fields to validate
+     */
+    private void validateTag(final String filename, final Map<String, String> fields) {
+        // strip the trailing file extension
+        final String section = getSection(filename);
+        logger.debug("Checking validation for {}", section);
+        if (metadataFields.containsKey(section)) {
+            try {
+                ProfileValidationUtil.validate(section, getMetadataFields(section), fields);
+                ProfileValidationUtil.validateTagIsAllowed(Paths.get(filename), tagFilesAllowed);
+            } catch (ProfileValidationException e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * Normalize a filename to be what we expect is held in the MetadataFields key set
+     *
+     * @param filename the filename to normalize
+     * @return the filename without a tag extension, so that it can be used with the metadataFields
+     */
+    private String getSection(final String filename) {
+        // use two regexps
+        // the main pattern: two groups - a wildcard matcher for the filename and the tag suffix
+        // the replacement: just the first capture group
+        final String replacement = "$1";
+        final Pattern tagEnding = Pattern.compile("(.*)(\\" + BAGIT_TAG_SUFFIX + ")");
+        final Matcher matcher = tagEnding.matcher(filename.toLowerCase());
+        return matcher.replaceAll(replacement);
+    }
 
     /**
      * Validate a given {@link Bag} against the current profile
@@ -488,7 +536,7 @@ public class BagProfile {
 
         // check payload manifest algorithms
         errors.append(ProfileValidationUtil.validateManifest(foundPayloadManifests, payloadDigestAlgorithms,
-                                            allowedPayloadAlgorithms, payloadIdentifier));
+                                                             allowedPayloadAlgorithms, payloadIdentifier));
 
         // check tag manifest rules files allowed
         // the reporting can be redundant if no tag manifests are found, so only check the allowed algorithms and
@@ -497,7 +545,7 @@ public class BagProfile {
             errors.append("No tag manifest found!\n");
         } else {
             errors.append(ProfileValidationUtil.validateManifest(foundTagManifests, tagDigestAlgorithms,
-                                                allowedTagAlgorithms, tagIdentifier));
+                                                                 allowedTagAlgorithms, tagIdentifier));
 
             // grab the first tag manifest and use that to check all registered tag files
             final Manifest manifest = foundTagManifests.iterator().next();
@@ -522,8 +570,8 @@ public class BagProfile {
         }
 
         // check *-info required fields
-        for (String section : sections) {
-            final String tagFile = section.toLowerCase() + ".txt";
+        for (String section : metadataFields.keySet()) {
+            final String tagFile = section.toLowerCase() + BAGIT_TAG_SUFFIX;
             final Path resolved = root.resolve(tagFile);
             try {
                 ProfileValidationUtil.validate(section, metadataFields.get(section), resolved);
