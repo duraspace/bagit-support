@@ -91,12 +91,18 @@ public class BagWriterTest {
         Files.createDirectories(bag);
         final BagWriter writer = new BagWriter(bag.toFile(), Sets.newHashSet(sha1, sha256, sha512));
 
-        // Setup the data file
+        // Setup the data files
         final Path data = bag.resolve("data");
         final Path file = Files.createFile(data.resolve(filename));
         final Map<File, String> sha1Sums = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha1MD.digest()));
         final Map<File, String> sha256Sums  = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha256MD.digest()));
         final Map<File, String> sha512Sums = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha512MD.digest()));
+
+        // second file
+        final Path file2 = Files.createFile(data.resolve(filename + "2"));
+        sha1Sums.put(file2.toFile(), HexEncoder.toString(sha1MD.digest()));
+        sha256Sums.put(file2.toFile(), HexEncoder.toString(sha256MD.digest()));
+        sha512Sums.put(file2.toFile(), HexEncoder.toString(sha512MD.digest()));
 
         writer.addTags(extraTagName, Maps.newHashMap("test-key", "test-value"));
         writer.addTags(extraTagName, Maps.newHashMap("additional-key", "additional-value"));
