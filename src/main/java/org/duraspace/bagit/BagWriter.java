@@ -131,8 +131,8 @@ public class BagWriter {
         for (final BagItDigest algorithm : algorithms) {
             final Map<File, String> filemap = registry.get(algorithm);
             if (filemap != null) {
-                final File f = new File(bagDir, prefix + "-" + algorithm.bagitName() + ".txt");
-                try (OutputStream out = streamFor(f.toPath())) {
+                final File manifest = new File(bagDir, prefix + "-" + algorithm.bagitName() + ".txt");
+                try (OutputStream out = streamFor(manifest.toPath())) {
                     for (final File payload : filemap.keySet()) {
                         // replace all occurrences of backslashes, which are not allowed per the bagit spec
                         final String relative = bag.relativize(payload.toPath()).toString()
@@ -140,15 +140,16 @@ public class BagWriter {
                         final String line = filemap.get(payload) + delimiter + relative;
                         out.write(line.getBytes());
                         out.write("\n".getBytes());
-
-                        if (registerToTags) {
-                            for (Map.Entry<BagItDigest, DigestOutputStream> entry : activeStreams.entrySet()) {
-                                addTagChecksum(entry.getKey(), f, entry.getValue().getMessageDigest());
-                            }
-                        }
-                        activeStreams.clear();
                     }
                 }
+
+                // now that the stream is finished being written to, register the checksum if required
+                if (registerToTags) {
+                    for (Map.Entry<BagItDigest, DigestOutputStream> entry : activeStreams.entrySet()) {
+                        addTagChecksum(entry.getKey(), manifest, entry.getValue().getMessageDigest());
+                    }
+                }
+                activeStreams.clear();
             }
         }
     }
