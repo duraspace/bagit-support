@@ -69,8 +69,8 @@ public class SerializationSupport {
         commonTypeMap.put("tar", APPLICATION_TAR);
         commonTypeMap.put(APPLICATION_TAR, APPLICATION_TAR);
         commonTypeMap.put(APPLICATION_GTAR, APPLICATION_TAR);
-        commonTypeMap.put(APPLICATION_X_TAR, APPLICATION_X_TAR);
-        commonTypeMap.put(APPLICATION_X_GTAR, APPLICATION_X_TAR);
+        commonTypeMap.put(APPLICATION_X_TAR, APPLICATION_TAR);
+        commonTypeMap.put(APPLICATION_X_GTAR, APPLICATION_TAR);
 
         commonTypeMap.put("tgz", APPLICATION_GZIP);
         commonTypeMap.put("gzip", APPLICATION_GZIP);
