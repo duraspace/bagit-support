@@ -37,7 +37,6 @@ public class SerializationSupportTest {
 
         assertThat(commonTypeMap).hasEntrySatisfying(zipIdentifier,
                                                      value -> assertThat(value).isEqualTo(APPLICATION_ZIP));
-
         assertThat(commonTypeMap).hasEntrySatisfying(APPLICATION_ZIP,
                                                      value -> assertThat(value).isEqualTo(APPLICATION_ZIP));
     }
@@ -58,7 +57,6 @@ public class SerializationSupportTest {
                                                      value -> assertThat(value).isEqualTo(APPLICATION_TAR));
     }
 
-
     @Test
     public void testGZipMappings() {
         final String tgzIdentifier = "tgz";
@@ -77,7 +75,6 @@ public class SerializationSupportTest {
                                                      value -> assertThat(value).isEqualTo(APPLICATION_GZIP));
         assertThat(commonTypeMap).hasEntrySatisfying(APPLICATION_X_COMPRESSED_TAR,
                                                      value -> assertThat(value).isEqualTo(APPLICATION_GZIP));
-
     }
 
 }
