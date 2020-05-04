@@ -28,18 +28,18 @@ public class SerializationSupport {
     private static final Logger logger = LoggerFactory.getLogger(SerializationSupport.class);
 
     // zip
-    private static final String APPLICATION_ZIP = "application/zip";
+    protected static final String APPLICATION_ZIP = "application/zip";
 
     // tar + gtar
-    private static final String APPLICATION_TAR = "application/tar";
-    private static final String APPLICATION_GTAR = "application/gtar";
-    private static final String APPLICATION_X_TAR = "application/x-tar";
-    private static final String APPLICATION_X_GTAR = "application/x-gtar";
+    protected static final String APPLICATION_TAR = "application/tar";
+    protected static final String APPLICATION_GTAR = "application/gtar";
+    protected static final String APPLICATION_X_TAR = "application/x-tar";
+    protected static final String APPLICATION_X_GTAR = "application/x-gtar";
 
     // gzip
-    private static final String APPLICATION_GZIP = "application/gzip";
-    private static final String APPLICATION_X_GZIP = "application/x-gzip";
-    private static final String APPLICATION_X_COMPRESSED_TAR = "application/x-compressed-tar";
+    protected static final String APPLICATION_GZIP = "application/gzip";
+    protected static final String APPLICATION_X_GZIP = "application/x-gzip";
+    protected static final String APPLICATION_X_COMPRESSED_TAR = "application/x-compressed-tar";
 
     public static final Set<String> ZIP_TYPES = Collections.singleton(APPLICATION_ZIP);
     public static final Set<String> TAR_TYPES = new HashSet<>(Arrays.asList(APPLICATION_TAR, APPLICATION_X_TAR,
@@ -79,6 +79,16 @@ public class SerializationSupport {
         commonTypeMap.put(APPLICATION_X_GZIP, APPLICATION_GZIP);
         commonTypeMap.put(APPLICATION_X_COMPRESSED_TAR, APPLICATION_GZIP);
         return commonTypeMap;
+    }
+
+    /**
+     * Visible for testing only
+     * Retrieve a copy of the commonTypeMap
+     *
+     * @return a copy of the commonTypeMap
+     */
+    protected static Map<String, String> getCommonTypeMap() {
+        return new HashMap<>(commonTypeMap);
     }
 
     /**
