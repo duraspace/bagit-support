@@ -129,9 +129,8 @@ public class SerializationSupport {
             }
         }
 
-        // todo: format list correctly
         throw new RuntimeException("BagProfile does not allow " + contentType + ". Accepted serializations are:\n" +
-                profile.getAcceptedSerializations());
+                                   profile.getAcceptedSerializations());
     }
 
     /**
@@ -152,10 +151,11 @@ public class SerializationSupport {
                 return new TarBagSerializer();
             } else if (GZIP_TYPES.contains(type)) {
                 return new TarGzBagSerializer();
+            } else {
+                throw new UnsupportedOperationException("Unsupported content type " + contentType);
             }
         }
 
-        // todo: proper formatting of list
         throw new RuntimeException("BagProfile does not allow " + type + ". Accepted serializations are:\n" +
                                    profile.getAcceptedSerializations());
     }
