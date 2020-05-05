@@ -28,18 +28,18 @@ public class SerializationSupport {
     private static final Logger logger = LoggerFactory.getLogger(SerializationSupport.class);
 
     // zip
-    private static final String APPLICATION_ZIP = "application/zip";
+    protected static final String APPLICATION_ZIP = "application/zip";
 
     // tar + gtar
-    private static final String APPLICATION_TAR = "application/tar";
-    private static final String APPLICATION_GTAR = "application/gtar";
-    private static final String APPLICATION_X_TAR = "application/x-tar";
-    private static final String APPLICATION_X_GTAR = "application/x-gtar";
+    protected static final String APPLICATION_TAR = "application/tar";
+    protected static final String APPLICATION_GTAR = "application/gtar";
+    protected static final String APPLICATION_X_TAR = "application/x-tar";
+    protected static final String APPLICATION_X_GTAR = "application/x-gtar";
 
     // gzip
-    private static final String APPLICATION_GZIP = "application/gzip";
-    private static final String APPLICATION_X_GZIP = "application/x-gzip";
-    private static final String APPLICATION_X_COMPRESSED_TAR = "application/x-compressed-tar";
+    protected static final String APPLICATION_GZIP = "application/gzip";
+    protected static final String APPLICATION_X_GZIP = "application/x-gzip";
+    protected static final String APPLICATION_X_COMPRESSED_TAR = "application/x-compressed-tar";
 
     public static final Set<String> ZIP_TYPES = Collections.singleton(APPLICATION_ZIP);
     public static final Set<String> TAR_TYPES = new HashSet<>(Arrays.asList(APPLICATION_TAR, APPLICATION_X_TAR,
@@ -69,8 +69,8 @@ public class SerializationSupport {
         commonTypeMap.put("tar", APPLICATION_TAR);
         commonTypeMap.put(APPLICATION_TAR, APPLICATION_TAR);
         commonTypeMap.put(APPLICATION_GTAR, APPLICATION_TAR);
-        commonTypeMap.put(APPLICATION_X_TAR, APPLICATION_X_TAR);
-        commonTypeMap.put(APPLICATION_X_GTAR, APPLICATION_X_TAR);
+        commonTypeMap.put(APPLICATION_X_TAR, APPLICATION_TAR);
+        commonTypeMap.put(APPLICATION_X_GTAR, APPLICATION_TAR);
 
         commonTypeMap.put("tgz", APPLICATION_GZIP);
         commonTypeMap.put("gzip", APPLICATION_GZIP);
@@ -79,6 +79,16 @@ public class SerializationSupport {
         commonTypeMap.put(APPLICATION_X_GZIP, APPLICATION_GZIP);
         commonTypeMap.put(APPLICATION_X_COMPRESSED_TAR, APPLICATION_GZIP);
         return commonTypeMap;
+    }
+
+    /**
+     * Visible for testing only
+     * Retrieve a copy of the commonTypeMap
+     *
+     * @return a copy of the commonTypeMap
+     */
+    protected static Map<String, String> getCommonTypeMap() {
+        return new HashMap<>(commonTypeMap);
     }
 
     /**
@@ -119,9 +129,8 @@ public class SerializationSupport {
             }
         }
 
-        // todo: format list correctly
         throw new RuntimeException("BagProfile does not allow " + contentType + ". Accepted serializations are:\n" +
-                profile.getAcceptedSerializations());
+                                   profile.getAcceptedSerializations());
     }
 
     /**
@@ -142,10 +151,11 @@ public class SerializationSupport {
                 return new TarBagSerializer();
             } else if (GZIP_TYPES.contains(type)) {
                 return new TarGzBagSerializer();
+            } else {
+                throw new UnsupportedOperationException("Unsupported content type " + contentType);
             }
         }
 
-        // todo: proper formatting of list
         throw new RuntimeException("BagProfile does not allow " + type + ". Accepted serializations are:\n" +
                                    profile.getAcceptedSerializations());
     }
