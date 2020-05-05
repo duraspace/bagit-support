@@ -14,6 +14,10 @@ import static org.duraspace.bagit.SerializationSupport.APPLICATION_X_GZIP;
 import static org.duraspace.bagit.SerializationSupport.APPLICATION_X_TAR;
 import static org.duraspace.bagit.SerializationSupport.APPLICATION_ZIP;
 
+import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.junit.Test;
@@ -75,6 +79,33 @@ public class SerializationSupportTest {
                                                      value -> assertThat(value).isEqualTo(APPLICATION_GZIP));
         assertThat(commonTypeMap).hasEntrySatisfying(APPLICATION_X_COMPRESSED_TAR,
                                                      value -> assertThat(value).isEqualTo(APPLICATION_GZIP));
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testDeserializerForFileNotFound() throws IOException {
+        final BagProfile profile = new BagProfile(BagProfile.BuiltIn.DEFAULT);
+        final Path notFound = Paths.get("file-not-found");
+        SerializationSupport.deserializerFor(notFound, profile);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testDeserializerNoProfileSupport() throws Exception {
+        // Currently the DEFAULT profile only supports application/tar, so send a file which is not a tarball
+        // see: profiles/default.json
+        final BagProfile profile = new BagProfile(BagProfile.BuiltIn.DEFAULT);
+        final URL url = SerializationSupportTest.class.getClassLoader().getResource("sample/compress/bag-zip.zip");
+        assertThat(url).isNotNull();
+
+        final Path notSupported = Paths.get(url.toURI());
+        SerializationSupport.deserializerFor(notSupported, profile);
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testSerializerNotSupported() throws IOException {
+        // A serialization/compression format which does not exist in the profile, currently xz
+        final String xz = "application/x-xz";
+        final BagProfile profile = new BagProfile(BagProfile.BuiltIn.DEFAULT);
+        SerializationSupport.serializerFor(xz, profile);
     }
 
 }
