@@ -66,7 +66,8 @@
    "Allow-Fetch.txt":false,
    "Serialization":"optional",
    "Accept-Serialization": [
-      "application/tar"
+      "application/tar",
+      "application/json"
    ],
    "Tag-Manifests-Required":[
      "sha1", "sha256", "sha512"

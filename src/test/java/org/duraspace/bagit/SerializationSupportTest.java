@@ -16,6 +16,7 @@ import static org.duraspace.bagit.SerializationSupport.APPLICATION_ZIP;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -100,12 +101,33 @@ public class SerializationSupportTest {
         SerializationSupport.deserializerFor(notSupported, profile);
     }
 
+    @Test(expected = UnsupportedOperationException.class)
+    public void testDeserializationNotSupported() throws Exception {
+        // A deserialization format which exists in a profile, but not by bagit-support
+        // currently json because we have many json resources available
+        final URL profileUrl = SerializationSupportTest.class.getClassLoader().getResource("profiles/profile.json");
+        assertThat(profileUrl).isNotNull();
+        final Path profileJson = Paths.get(profileUrl.toURI());
+        final BagProfile profile = new BagProfile(Files.newInputStream(profileJson));
+
+        SerializationSupport.deserializerFor(profileJson, profile);
+    }
+
     @Test(expected = RuntimeException.class)
-    public void testSerializerNotSupported() throws IOException {
+    public void testSerializerNoProfileSupport() throws IOException {
         // A serialization/compression format which does not exist in the profile, currently xz
         final String xz = "application/x-xz";
         final BagProfile profile = new BagProfile(BagProfile.BuiltIn.DEFAULT);
         SerializationSupport.serializerFor(xz, profile);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void testSerializerNotSupported() throws IOException {
+        // A serialization/compression format which exists in a profile, but not by bagit-support
+        // currently 7zip fits this
+        final String sevenZip = "application/x-7z-compressed";
+        final BagProfile profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
+        SerializationSupport.serializerFor(sevenZip, profile);
     }
 
 }
