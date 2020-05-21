@@ -4,7 +4,12 @@
  */
 package org.duraspace.bagit;
 
+import java.nio.charset.Charset;
+
 public abstract class BagProfileConstants {
+    // once we can use java11+, usage of this can be replaced with StandardCharsets
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
+
     public static final String ALLOW_FETCH_TXT = "Allow-Fetch.txt";
     public static final String SERIALIZATION = "Serialization";
     public static final String ACCEPT_BAGIT_VERSION = "Accept-BagIt-Version";
