@@ -52,57 +52,51 @@ public class BagSerializerTest {
     @Test
     public void testZipSerializer() throws IOException {
         final BagSerializer zipper = SerializationSupport.serializerFor("zip", profile);
-        zipper.serialize(bag);
+        final Path writtenBag = zipper.serialize(bag);
 
-        final Path zippedBag = resources.resolve("bag.zip");
-
-        assertThat(zippedBag).exists();
-        assertThat(zippedBag).isRegularFile();
+        assertThat(writtenBag).exists();
+        assertThat(writtenBag).isRegularFile();
 
         // just make sure we can read it
-        try (ZipArchiveInputStream zipIn = new ZipArchiveInputStream(Files.newInputStream(zippedBag))) {
+        try (ZipArchiveInputStream zipIn = new ZipArchiveInputStream(Files.newInputStream(writtenBag))) {
             ArchiveEntry entry;
             while ((entry = zipIn.getNextEntry()) != null) {
                 assertThat(bagFiles).contains(Paths.get(entry.getName()));
             }
         }
 
-        Files.delete(zippedBag);
+        Files.delete(writtenBag);
     }
 
     @Test
     public void testTarSerializer() throws IOException {
         final BagSerializer serializer = SerializationSupport.serializerFor("tar", profile);
-        serializer.serialize(bag);
+        final Path writtenBag = serializer.serialize(bag);
 
-        final Path serializedBag = resources.resolve("bag.tar");
-
-        assertThat(serializedBag).exists();
-        assertThat(serializedBag).isRegularFile();
+        assertThat(writtenBag).exists();
+        assertThat(writtenBag).isRegularFile();
 
         // just make sure we can read it
-        try (TarArchiveInputStream zipIn = new TarArchiveInputStream(Files.newInputStream(serializedBag))) {
+        try (TarArchiveInputStream zipIn = new TarArchiveInputStream(Files.newInputStream(writtenBag))) {
             ArchiveEntry entry;
             while ((entry = zipIn.getNextEntry()) != null) {
                 assertThat(bagFiles).contains(Paths.get(entry.getName()));
             }
         }
 
-        Files.delete(serializedBag);
+        Files.delete(writtenBag);
     }
 
     @Test
     public void testGZipSerializer() throws IOException {
         final BagSerializer serializer = SerializationSupport.serializerFor("tgz", profile);
-        serializer.serialize(bag);
+        final Path writtenBag = serializer.serialize(bag);
 
-        final Path gzippedBag = resources.resolve("bag.tar.gz");
-
-        assertThat(gzippedBag).exists();
-        assertThat(gzippedBag).isRegularFile();
+        assertThat(writtenBag).exists();
+        assertThat(writtenBag).isRegularFile();
 
         // just make sure we can read it
-        try (GZIPInputStream gzip = new GZIPInputStream(Files.newInputStream(gzippedBag));
+        try (GZIPInputStream gzip = new GZIPInputStream(Files.newInputStream(writtenBag));
              TarArchiveInputStream zipIn = new TarArchiveInputStream(gzip)) {
             ArchiveEntry entry;
             while ((entry = zipIn.getNextEntry()) != null) {
@@ -110,7 +104,7 @@ public class BagSerializerTest {
             }
         }
 
-        Files.delete(gzippedBag);
+        Files.delete(writtenBag);
     }
 
 }

@@ -18,10 +18,12 @@ import static org.duraspace.bagit.BagProfileConstants.TAG_FILES_ALLOWED;
 import static org.duraspace.bagit.BagProfileConstants.TAG_FILES_REQUIRED;
 import static org.duraspace.bagit.BagProfileConstants.TAG_MANIFESTS_ALLOWED;
 import static org.duraspace.bagit.BagProfileConstants.TAG_MANIFESTS_REQUIRED;
+import static org.duraspace.bagit.BagProfileConstants.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -170,7 +172,7 @@ public class BagProfile {
 
     private void load(final InputStream in) throws IOException {
         final ObjectMapper mapper = new ObjectMapper();
-        final JsonNode json = mapper.readTree(in);
+        final JsonNode json = mapper.readTree(new InputStreamReader(in, UTF_8));
 
         loadProfileInfo(json);
 

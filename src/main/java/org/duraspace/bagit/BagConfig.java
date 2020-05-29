@@ -4,10 +4,12 @@
  */
 package org.duraspace.bagit;
 
+import static org.duraspace.bagit.BagProfileConstants.UTF_8;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +76,7 @@ public class BagConfig {
 
         YamlReader reader = null;
         try {
-            reader = new YamlReader(new FileReader(bagConfigFile));
+            reader = new YamlReader(Files.newBufferedReader(bagConfigFile.toPath(), UTF_8));
             map = (Map<String, Map<String, String>>) reader.read();
             if (getBagInfo() == null) {
                 throw new RuntimeException("The " + BAG_INFO_KEY + " key is not present in the " + bagConfigFilePath);

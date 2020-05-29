@@ -4,6 +4,8 @@
  */
 package org.duraspace.bagit;
 
+import static org.duraspace.bagit.BagProfileConstants.UTF_8;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -138,8 +140,8 @@ public class BagWriter {
                         final String relative = bag.relativize(payload.toPath()).toString()
                                                    .replace(backslash, bagitSeparator);
                         final String line = filemap.get(payload) + delimiter + relative;
-                        out.write(line.getBytes());
-                        out.write("\n".getBytes());
+                        out.write(line.getBytes(UTF_8));
+                        out.write("\n".getBytes(UTF_8));
                     }
                 }
 
@@ -161,7 +163,7 @@ public class BagWriter {
 
             try (OutputStream out = streamFor(f.toPath())) {
                 for (final String field : values.keySet()) {
-                    final byte[] bytes = (field + ": " + values.get(field) + "\n").getBytes();
+                    final byte[] bytes = (field + ": " + values.get(field) + "\n").getBytes(UTF_8);
                     out.write(bytes);
                 }
             }
