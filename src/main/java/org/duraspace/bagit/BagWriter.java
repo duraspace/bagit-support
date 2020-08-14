@@ -28,6 +28,8 @@ public class BagWriter {
 
     private File bagDir;
     private File dataDir;
+    private Set<BagItDigest> tagAlgorithms;
+    private Set<BagItDigest> payloadAlgorithms;
     private Set<BagItDigest> algorithms;
 
     private Map<BagItDigest, Map<File, String>> payloadRegistry;
@@ -57,6 +59,38 @@ public class BagWriter {
             dataDir.mkdirs();
         }
 
+        this.algorithms = algorithms;
+        this.tagAlgorithms = algorithms;
+        this.payloadAlgorithms = algorithms;
+        payloadRegistry = new HashMap<>();
+        tagFileRegistry = new HashMap<>();
+        tagRegistry = new HashMap<>();
+
+        final Map<String, String> bagitValues = new TreeMap<>();
+        bagitValues.put("BagIt-Version", BAGIT_VERSION);
+        bagitValues.put("Tag-File-Character-Encoding", "UTF-8");
+        tagRegistry.put("bagit.txt", bagitValues);
+
+        activeStreams = new HashMap<>();
+    }
+
+    /**
+     * Create a new, empty Bag
+     *
+     * @param bagDir The base directory for the Bag (will be created if it doesn't exist)
+     * @param payloadAlgorithms Set of digest algorithms to use for payload manifests (e.g., "md5", "sha1", or "sha256")
+     * @param tagAlgorithms Set of digest algorithms to use for tag manifests (e.g., "md5", "sha1", or "sha256")
+     */
+    public BagWriter(final File bagDir, final Set<BagItDigest> payloadAlgorithms,
+                     final Set<BagItDigest> tagAlgorithms) {
+        this.bagDir = bagDir;
+        this.dataDir = new File(bagDir, "data");
+        if (!dataDir.exists()) {
+            dataDir.mkdirs();
+        }
+
+        this.tagAlgorithms = tagAlgorithms;
+        this.payloadAlgorithms = payloadAlgorithms;
         this.algorithms = algorithms;
         payloadRegistry = new HashMap<>();
         tagFileRegistry = new HashMap<>();
