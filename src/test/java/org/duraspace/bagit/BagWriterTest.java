@@ -145,8 +145,8 @@ public class BagWriterTest {
             .contains("test-key: test-value", "additional-key: additional-value");
 
         // Assert that tagmanifest-{sha1,sha256,sha512}.txt contain the manifest checksums
-        tagFilesContain(Sets.newHashSet(sha1Tagmanifest, sha256Tagmanifest, sha512Tagmanifest),
-                        Sets.newHashSet(sha1, sha256, sha512));
+        tagManifestsContain(Sets.newHashSet(sha1Tagmanifest, sha256Tagmanifest, sha512Tagmanifest),
+                            Sets.newHashSet(sha1, sha256, sha512));
 
         // Finally, pass BagProfile validation and BagIt validation
         validateBag();
@@ -211,7 +211,7 @@ public class BagWriterTest {
             .contains("test-key: test-value", "additional-key: additional-value");
 
         // Assert that tagmanifest-sha512.txt contain the manifest checksums
-        tagFilesContain(Sets.newHashSet(sha512Tagmanifest), Sets.newHashSet(sha1, sha256));
+        tagManifestsContain(Sets.newHashSet(sha512Tagmanifest), Sets.newHashSet(sha1, sha256));
 
         // Finally, pass BagProfile validation and BagIt validation
         validateBag();
@@ -246,7 +246,8 @@ public class BagWriterTest {
         }
     }
 
-    private void tagFilesContain(final Set<Path> tagmanifests, final Set<BagItDigest> contained) throws IOException {
+    private void tagManifestsContain(final Set<Path> tagmanifests, final Set<BagItDigest> contained)
+        throws IOException {
         final String manifestRegex = contained.stream().map(BagItDigest::bagitName).collect(Collectors.joining("|"));
         for (Path tagmanifest : tagmanifests) {
             try (Stream<String> lines = Files.lines(tagmanifest)) {
