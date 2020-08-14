@@ -30,7 +30,6 @@ public class BagWriter {
     private File dataDir;
     private Set<BagItDigest> tagAlgorithms;
     private Set<BagItDigest> payloadAlgorithms;
-    private Set<BagItDigest> algorithms;
 
     private Map<BagItDigest, Map<File, String>> payloadRegistry;
     private Map<BagItDigest, Map<File, String>> tagFileRegistry;
@@ -59,7 +58,6 @@ public class BagWriter {
             dataDir.mkdirs();
         }
 
-        this.algorithms = algorithms;
         this.tagAlgorithms = algorithms;
         this.payloadAlgorithms = algorithms;
         payloadRegistry = new HashMap<>();
@@ -91,7 +89,6 @@ public class BagWriter {
 
         this.tagAlgorithms = tagAlgorithms;
         this.payloadAlgorithms = payloadAlgorithms;
-        this.algorithms = algorithms;
         payloadRegistry = new HashMap<>();
         tagFileRegistry = new HashMap<>();
         tagRegistry = new HashMap<>();
@@ -118,7 +115,7 @@ public class BagWriter {
      * @param filemap Map of Files to checksum values
      */
     public void registerChecksums(final BagItDigest algorithm, final Map<File, String> filemap) {
-        if (!algorithms.contains(algorithm)) {
+        if (!payloadAlgorithms.contains(algorithm)) {
             throw new RuntimeException("Invalid algorithm: " + algorithm);
         }
         payloadRegistry.put(algorithm, filemap);
@@ -157,6 +154,15 @@ public class BagWriter {
         writeManifests("tagmanifest", tagFileRegistry, false);
     }
 
+    /**
+     * Write a manifest to a bag. Can be either a payload or tag manifest, and uses the {@code registry} in order to
+     * determine what BagItDigests to write manifests for.
+     *
+     * @param prefix the name of the manifest to write
+     * @param registry the files to write for a given digest
+     * @param registerToTags flag to check if the hash of the output should be stored in the {@code tagFileRegistry}
+     * @throws IOException if there's an error writing to the OutputStream
+     */
     private void writeManifests(final String prefix, final Map<BagItDigest, Map<File, String>> registry,
                                 final boolean registerToTags) throws IOException {
         final String delimiter = "  ";
@@ -164,7 +170,7 @@ public class BagWriter {
         final char bagitSeparator = '/';
         final Path bag = bagDir.toPath();
 
-        for (final BagItDigest algorithm : algorithms) {
+        for (final BagItDigest algorithm : registry.keySet()) {
             final Map<File, String> filemap = registry.get(algorithm);
             if (filemap != null) {
                 final File manifest = new File(bagDir, prefix + "-" + algorithm.bagitName() + ".txt");
@@ -214,8 +220,8 @@ public class BagWriter {
      * Create an {@link OutputStream} for a given {@link Path} which can be used to write data to the file.
      * This wraps the returned {@link OutputStream} with {@link DigestOutputStream}s in order to create a checksum
      * for the file as it is being written. There is one {@link DigestOutputStream} per {@link BagItDigest} in this
-     * classes registered {@code algorithms}. Each {@link DigestOutputStream} is stored in the {@code activeStreams} so
-     * that it can be retrieved later on.
+     * classes registered {@code tagAlgorithms}. Each {@link DigestOutputStream} is stored in the {@code activeStreams}
+     * so that it can be retrieved later on.
      *
      * @param file the {@link Path} to create an {@link OutputStream} for
      * @return the {@link OutputStream}
@@ -223,7 +229,8 @@ public class BagWriter {
      */
     private OutputStream streamFor(final Path file) throws IOException {
         OutputStream lastStream = Files.newOutputStream(file);
-        for (BagItDigest algorithm : algorithms) {
+        // All hashing we do here is for tagmanifests, so use the tagAlgorithms to determine what hash algorithms to use
+        for (BagItDigest algorithm : tagAlgorithms) {
             final DigestOutputStream dos = new DigestOutputStream(lastStream, algorithm.messageDigest());
             activeStreams.put(algorithm, dos);
             lastStream = dos;
