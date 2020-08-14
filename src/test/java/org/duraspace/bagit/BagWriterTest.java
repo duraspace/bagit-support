@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,6 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import gov.loc.repository.bagit.domain.Bag;
@@ -121,23 +124,11 @@ public class BagWriterTest {
         final Path bagit = bag.resolve("bagit.txt");
         final Path extra = bag.resolve(extraTagName);
         final Path bagInfo = bag.resolve(BagConfig.BAG_INFO_KEY);
-        final Path sha1Manifest = bag.resolve("manifest-" + sha1.bagitName() + ".txt");
         final Path sha1Tagmanifest = bag.resolve("tagmanifest-" + sha1.bagitName() + ".txt");
-        final Path sha256Manifest = bag.resolve("manifest-" + sha256.bagitName() + ".txt");
         final Path sha256Tagmanifest = bag.resolve("tagmanifest-" + sha256.bagitName() + ".txt");
-        final Path sha512Manifest = bag.resolve("manifest-" + sha512.bagitName() + ".txt");
         final Path sha512Tagmanifest = bag.resolve("tagmanifest-" + sha512.bagitName() + ".txt");
 
-        // Assert that all tag files (bagit.txt, bag-info.txt, etc) exist
-        assertThat(bagit).exists();
-        assertThat(extra).exists();
-        assertThat(bagInfo).exists();
-        assertThat(sha1Manifest).exists();
-        assertThat(sha1Tagmanifest).exists();
-        assertThat(sha256Manifest).exists();
-        assertThat(sha256Tagmanifest).exists();
-        assertThat(sha512Manifest).exists();
-        assertThat(sha512Tagmanifest).exists();
+        checkBagTagFiles(Sets.newHashSet(sha1, sha256, sha512), Sets.newHashSet(sha1, sha256, sha512));
 
         // Assert that bagit.txt contains expected lines
         final List<String> bagitLines = Files.readAllLines(bagit);
@@ -154,20 +145,81 @@ public class BagWriterTest {
             .contains("test-key: test-value", "additional-key: additional-value");
 
         // Assert that tagmanifest-{sha1,sha256,sha512}.txt contain the manifest checksums
-        final String manifestRegex = sha1.bagitName() + "|" + sha256.bagitName() + "|" + sha512.bagitName();
-        for (Path tagmanifest : Sets.newHashSet(sha1Tagmanifest, sha256Tagmanifest, sha512Tagmanifest)) {
-            try (Stream<String> lines = Files.lines(tagmanifest)) {
-                assertThat(lines)
-                    .filteredOn(line -> line.contains("manifest"))
-                    .hasSize(3)
-                    .allSatisfy(entry -> assertThat(entry).containsPattern(manifestRegex));
-            }
-        }
+        tagFilesContain(Sets.newHashSet(sha1Tagmanifest, sha256Tagmanifest, sha512Tagmanifest),
+                        Sets.newHashSet(sha1, sha256, sha512));
 
         // Finally, pass BagProfile validation and BagIt validation
+        validateBag();
+    }
+
+    @Test
+    public void testWriteDistinctManifests() throws Exception {
+        // The message digests to use
+        final BagItDigest sha1 = BagItDigest.SHA1;
+        final BagItDigest sha256 = BagItDigest.SHA256;
+        final BagItDigest sha512 = BagItDigest.SHA512;
+        final MessageDigest sha1MD = sha1.messageDigest();
+        final MessageDigest sha256MD = sha256.messageDigest();
+
+        // Create a writer with 3 manifest algorithms
+        Files.createDirectories(bag);
+        final BagWriter writer = new BagWriter(bag.toFile(), Sets.newHashSet(sha1, sha256), Sets.newHashSet(sha512));
+
+        // Setup the data files
+        final Path data = bag.resolve("data");
+        final Path file = Files.createFile(data.resolve(filename));
+        final Map<File, String> sha1Sums = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha1MD.digest()));
+        final Map<File, String> sha256Sums = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha256MD.digest()));
+
+        // second file
+        final Path file2 = Files.createFile(data.resolve(filename + "2"));
+        sha1Sums.put(file2.toFile(), HexEncoder.toString(sha1MD.digest()));
+        sha256Sums.put(file2.toFile(), HexEncoder.toString(sha256MD.digest()));
+
+        writer.addTags(extraTagName, Maps.newHashMap("test-key", "test-value"));
+        writer.addTags(extraTagName, Maps.newHashMap("additional-key", "additional-value"));
+        final Map<String, String> bagInfoFields = new HashMap<>();
+        bagInfoFields.put(BagConfig.SOURCE_ORGANIZATION_KEY, "bagit-support-✓");
+        bagInfoFields.put(BagConfig.BAGGING_DATE_KEY, ISO_LOCAL_DATE.format(LocalDate.now()));
+        bagInfoFields.put(BagConfig.BAG_SIZE_KEY, "0 bytes");
+        bagInfoFields.put(BagConfig.PAYLOAD_OXUM_KEY, "1.0");
+        writer.addTags(BagConfig.BAG_INFO_KEY, bagInfoFields);
+        writer.registerChecksums(sha1, sha1Sums);
+        writer.registerChecksums(sha256, sha256Sums);
+
+        writer.write();
+
+        final Path bagit = bag.resolve("bagit.txt");
+        final Path extra = bag.resolve(extraTagName);
+        final Path bagInfo = bag.resolve(BagConfig.BAG_INFO_KEY);
+        final Path sha512Tagmanifest = bag.resolve("tagmanifest-" + sha512.bagitName() + ".txt");
+
+        checkBagTagFiles(Sets.newHashSet(sha1, sha256), Sets.newHashSet(sha512));
+
+        // Assert that bagit.txt contains expected lines
+        final List<String> bagitLines = Files.readAllLines(bagit);
+        assertThat(bagitLines).containsSequence("BagIt-Version: 1.0", "Tag-File-Character-Encoding: UTF-8");
+
+        // Assert that bag-info.txt contains... the bare necessities
+        final List<String> bagInfoLines = Files.readAllLines(bagInfo);
+        assertThat(bagInfoLines).contains(BagConfig.SOURCE_ORGANIZATION_KEY + ": bagit-support-✓");
+
+        // Assert that extra-tag.txt exists
+        final List<String> extraLines = Files.readAllLines(extra);
+        assertThat(extraLines)
+            .hasSize(2)
+            .contains("test-key: test-value", "additional-key: additional-value");
+
+        // Assert that tagmanifest-sha512.txt contain the manifest checksums
+        tagFilesContain(Sets.newHashSet(sha512Tagmanifest), Sets.newHashSet(sha1, sha256));
+
+        // Finally, pass BagProfile validation and BagIt validation
+        validateBag();
+    }
+
+    private void validateBag() throws IOException {
         final BagReader reader = new BagReader();
-        final BagVerifier verifier = new BagVerifier();
-        try {
+        try (BagVerifier verifier = new BagVerifier()) {
             final Bag readBag = reader.read(bag);
             profile.validateBag(readBag);
             verifier.isValid(readBag, false);
@@ -178,6 +230,31 @@ public class BagWriterTest {
             FileNotInPayloadDirectoryException | CorruptChecksumException | MissingBagitFileException |
             InterruptedException e) {
             fail("Unable to verify bag:\n" + e.getMessage());
+        }
+    }
+
+    private void checkBagTagFiles(final Set<BagItDigest> payloadAlgs, final Set<BagItDigest> tagsAlgs) {
+        final Set<Path> expected = Sets.newHashSet(bag.resolve("data"), bag.resolve("bagit.txt"),
+                                                   bag.resolve(extraTagName), bag.resolve(BagConfig.BAG_INFO_KEY));
+        payloadAlgs.stream().map(alg -> bag.resolve("manifest-" + alg.bagitName() + ".txt")).forEach(expected::add);
+        tagsAlgs.stream().map(alg -> bag.resolve("tagmanifest-" + alg.bagitName() + ".txt")).forEach(expected::add);
+
+        try (DirectoryStream<Path> tagFiles = Files.newDirectoryStream(bag)) {
+            assertThat(tagFiles).containsExactlyInAnyOrderElementsOf(expected);
+        } catch (IOException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    private void tagFilesContain(final Set<Path> tagmanifests, final Set<BagItDigest> contained) throws IOException {
+        final String manifestRegex = contained.stream().map(BagItDigest::bagitName).collect(Collectors.joining("|"));
+        for (Path tagmanifest : tagmanifests) {
+            try (Stream<String> lines = Files.lines(tagmanifest)) {
+                assertThat(lines)
+                    .filteredOn(line -> line.contains("manifest"))
+                    .hasSize(contained.size())
+                    .allSatisfy(entry -> assertThat(entry).containsPattern(manifestRegex));
+            }
         }
     }
 
