@@ -2,7 +2,7 @@
   "BagIt-Profile-Info": {
     "Source-Organization": "Beyond the Repository Bagit Profile Group",
     "External-Description": "Bagit Profile for Consistent Deposit to Distributed Digital Preservation Services",
-    "Version": "0.1",
+    "Version": "1.0",
     "BagIt-Profile-Identifier": "https://github.com/dpscollaborative/btr_bagit_profile/releases/download/1.0/btr-bagit-profile.json",
     "BagIt-Profile-Version": "1.3.0"
   },
