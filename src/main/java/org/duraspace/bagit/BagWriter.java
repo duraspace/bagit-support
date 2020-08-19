@@ -99,7 +99,7 @@ public class BagWriter {
      */
     public void registerChecksums(final BagItDigest algorithm, final Map<File, String> filemap) {
         if (!payloadAlgorithms.contains(algorithm)) {
-            throw new RuntimeException("Invalid algorithm: " + algorithm);
+            throw new IllegalArgumentException("Invalid algorithm: " + algorithm);
         }
         payloadRegistry.put(algorithm, filemap);
     }
