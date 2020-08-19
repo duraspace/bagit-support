@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.tika.Tika;
+import org.duraspace.bagit.exception.BagProfileException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,10 +101,11 @@ public class SerializationSupport {
      * @param serializedBag the Bag (still serialized) to get a {@link BagDeserializer} for
      * @param profile the {@link BagProfile} to ensure that the content type is allowed
      * @return the {@link BagDeserializer}
-     * @throws UnsupportedOperationException if the content type is not supported
-     * @throws RuntimeException if the {@link BagProfile} does not allow serialization
+     * @throws IOException if the Bag can not be queried for its content type
+     * @throws BagProfileException if the {@link BagProfile} does not allow serialization
      */
-    public static BagDeserializer deserializerFor(final Path serializedBag, final BagProfile profile) {
+    public static BagDeserializer deserializerFor(final Path serializedBag, final BagProfile profile)
+        throws IOException, BagProfileException {
         final Tika tika = new Tika();
         final String contentType;
 
@@ -114,7 +116,7 @@ public class SerializationSupport {
             logger.debug("{}: {}", serializedBag, contentType);
         } catch (IOException e) {
             logger.error("Unable to get content type for {}", serializedBag);
-            throw new RuntimeException(e);
+            throw new IOException(e);
         }
 
         if (profile.getAcceptedSerializations().contains(contentType)) {
@@ -125,12 +127,12 @@ public class SerializationSupport {
             } else if (GZIP_TYPES.contains(contentType)) {
                 return new GZipBagDeserializer(profile);
             } else {
-                throw new UnsupportedOperationException("Unsupported content type " + contentType);
+                throw new BagProfileException("Unsupported content type " + contentType);
             }
         }
 
-        throw new RuntimeException("BagProfile does not allow " + contentType + ". Accepted serializations are:\n" +
-                                   profile.getAcceptedSerializations());
+        throw new BagProfileException("BagProfile does not allow " + contentType + ". Accepted serializations are:\n" +
+                                      profile.getAcceptedSerializations());
     }
 
     /**
@@ -140,9 +142,10 @@ public class SerializationSupport {
      * @param contentType the content type to get a {@link BagSerializer} for
      * @param profile the {@link BagProfile} used for validating the {@code contentType}
      * @return the {@link BagSerializer}
-     * @throws RuntimeException if the {@code contentType} is not supported
+     * @throws BagProfileException if the {@code contentType} is not supported by the {@link BagProfile}
      */
-    public static BagSerializer serializerFor(final String contentType, final BagProfile profile) {
+    public static BagSerializer serializerFor(final String contentType, final BagProfile profile)
+        throws BagProfileException {
         final String type = commonTypeMap.getOrDefault(contentType, contentType);
         if (profile.getAcceptedSerializations().contains(type)) {
             if (ZIP_TYPES.contains(type)) {
@@ -152,11 +155,11 @@ public class SerializationSupport {
             } else if (GZIP_TYPES.contains(type)) {
                 return new TarGzBagSerializer();
             } else {
-                throw new UnsupportedOperationException("Unsupported content type " + contentType);
+                throw new BagProfileException("Unsupported content type " + contentType);
             }
         }
 
-        throw new RuntimeException("BagProfile does not allow " + type + ". Accepted serializations are:\n" +
+        throw new BagProfileException("BagProfile does not allow " + type + ". Accepted serializations are:\n" +
                                    profile.getAcceptedSerializations());
     }
 
