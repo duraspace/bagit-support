@@ -31,15 +31,15 @@ public class BagWriter {
     private Set<BagItDigest> tagAlgorithms;
     private Set<BagItDigest> payloadAlgorithms;
 
-    private Map<BagItDigest, Map<File, String>> payloadRegistry;
-    private Map<BagItDigest, Map<File, String>> tagFileRegistry;
-    private Map<String, Map<String, String>> tagRegistry;
+    private final Map<BagItDigest, Map<File, String>> payloadRegistry;
+    private final Map<BagItDigest, Map<File, String>> tagFileRegistry;
+    private final Map<String, Map<String, String>> tagRegistry;
 
     /**
      * This map provides a way to retrieve all ongoing MessageDigests so that multiple checksums
      * can easily be run and retrieved
      */
-    private Map<BagItDigest, DigestOutputStream> activeStreams;
+    private final Map<BagItDigest, DigestOutputStream> activeStreams;
 
     /**
      * Version of the BagIt specification implemented
