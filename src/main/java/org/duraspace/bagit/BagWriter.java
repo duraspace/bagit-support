@@ -52,24 +52,7 @@ public class BagWriter {
      * @param algorithms Set of digest algorithms to use for manifests (e.g., "md5", "sha1", or "sha256")
      */
     public BagWriter(final File bagDir, final Set<BagItDigest> algorithms) {
-        this.bagDir = bagDir;
-        this.dataDir = new File(bagDir, "data");
-        if (!dataDir.exists()) {
-            dataDir.mkdirs();
-        }
-
-        this.tagAlgorithms = algorithms;
-        this.payloadAlgorithms = algorithms;
-        payloadRegistry = new HashMap<>();
-        tagFileRegistry = new HashMap<>();
-        tagRegistry = new HashMap<>();
-
-        final Map<String, String> bagitValues = new TreeMap<>();
-        bagitValues.put("BagIt-Version", BAGIT_VERSION);
-        bagitValues.put("Tag-File-Character-Encoding", "UTF-8");
-        tagRegistry.put("bagit.txt", bagitValues);
-
-        activeStreams = new HashMap<>();
+        this(bagDir, algorithms, algorithms);
     }
 
     /**
