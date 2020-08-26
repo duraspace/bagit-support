@@ -26,10 +26,9 @@ import java.util.TreeMap;
  */
 public class BagWriter {
 
-    private File bagDir;
-    private File dataDir;
-    private Set<BagItDigest> tagAlgorithms;
-    private Set<BagItDigest> payloadAlgorithms;
+    private final File bagDir;
+    private final Set<BagItDigest> tagAlgorithms;
+    private final Set<BagItDigest> payloadAlgorithms;
 
     private final Map<BagItDigest, Map<File, String>> payloadRegistry;
     private final Map<BagItDigest, Map<File, String>> tagFileRegistry;
@@ -47,7 +46,8 @@ public class BagWriter {
     public static String BAGIT_VERSION = "1.0";
 
     /**
-     * Create a new, empty Bag
+     * Create a new, empty Bag. Create a data directory for the Bag if it does not exist.
+     *
      * @param bagDir The base directory for the Bag (will be created if it doesn't exist)
      * @param algorithms Set of digest algorithms to use for manifests (e.g., "md5", "sha1", or "sha256")
      */
@@ -56,7 +56,7 @@ public class BagWriter {
     }
 
     /**
-     * Create a new, empty Bag
+     * Create a new, empty Bag. Create a data directory for the Bag if it does not exist.
      *
      * @param bagDir The base directory for the Bag (will be created if it doesn't exist)
      * @param payloadAlgorithms Set of digest algorithms to use for payload manifests (e.g., "md5", "sha1", or "sha256")
@@ -65,7 +65,7 @@ public class BagWriter {
     public BagWriter(final File bagDir, final Set<BagItDigest> payloadAlgorithms,
                      final Set<BagItDigest> tagAlgorithms) {
         this.bagDir = bagDir;
-        this.dataDir = new File(bagDir, "data");
+        final File dataDir = new File(bagDir, "data");
         if (!dataDir.exists()) {
             dataDir.mkdirs();
         }
