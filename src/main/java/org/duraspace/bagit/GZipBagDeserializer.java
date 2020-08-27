@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.duraspace.bagit.exception.BagProfileException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +52,13 @@ public class GZipBagDeserializer implements BagDeserializer {
         }
 
         // Get a deserializer for the deflated content
-        final BagDeserializer deserializer = SerializationSupport.deserializerFor(serializedBag, profile);
+        final BagDeserializer deserializer;
+        try {
+            deserializer = SerializationSupport.deserializerFor(serializedBag, profile);
+        } catch (BagProfileException e) {
+            logger.error("{} is not an accepted format for the given BagProfile!", serializedBag);
+            throw new IOException(e);
+        }
         return deserializer.deserialize(serializedBag);
     }
 }
