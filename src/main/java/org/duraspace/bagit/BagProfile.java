@@ -80,7 +80,7 @@ public class BagProfile {
     public enum BuiltIn {
         APTRUST("aptrust"),
         BEYOND_THE_REPOSITORY("beyondtherepository"),
-        DEFAULT("default"),
+        FEDORA_IMPORT_EXPORT("fedora-import-export"),
         METAARCHIVE("metaarchive"),
         PERSEIDS("perseids");
 
@@ -106,7 +106,7 @@ public class BagProfile {
             switch (identifier.toLowerCase()) {
                 case "aptrust": return APTRUST;
                 case "beyondtherepository": return BEYOND_THE_REPOSITORY;
-                case "default": return DEFAULT;
+                case "fedora-import-export": return FEDORA_IMPORT_EXPORT;
                 case "metaarchive": return METAARCHIVE;
                 case "perseids": return PERSEIDS;
                 default: throw new IllegalArgumentException("Unsupported profile identifier. Accepted values are: " +

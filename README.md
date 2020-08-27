@@ -9,7 +9,7 @@ Libraries to provide support for the use of Bagit bags and Bagit Profiles
 The BagIt Support library complies with version `1.3.0` of the Bagit profiles specification and includes the following
 bag profiles by default:
 
-* [default](src/main/resources/profiles/default.json)
+* [default](src/main/resources/profiles/fedora-import-export.json)
 * [aptrust](src/main/resources/profiles/aptrust.json)
 * [beyond the repository](src/main/resources/profiles/beyondtherepository.json)
 * [meta archive](src/main/resources/profiles/metaarchive.json)
