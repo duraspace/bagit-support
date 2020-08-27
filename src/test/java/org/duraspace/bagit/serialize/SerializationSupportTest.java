@@ -2,17 +2,17 @@
  * The contents of this file are subject to the license and copyright detailed
  * in the LICENSE and NOTICE files at the root of the source tree.
  */
-package org.duraspace.bagit;
+package org.duraspace.bagit.serialize;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.duraspace.bagit.SerializationSupport.APPLICATION_GTAR;
-import static org.duraspace.bagit.SerializationSupport.APPLICATION_GZIP;
-import static org.duraspace.bagit.SerializationSupport.APPLICATION_TAR;
-import static org.duraspace.bagit.SerializationSupport.APPLICATION_X_COMPRESSED_TAR;
-import static org.duraspace.bagit.SerializationSupport.APPLICATION_X_GTAR;
-import static org.duraspace.bagit.SerializationSupport.APPLICATION_X_GZIP;
-import static org.duraspace.bagit.SerializationSupport.APPLICATION_X_TAR;
-import static org.duraspace.bagit.SerializationSupport.APPLICATION_ZIP;
+import static org.duraspace.bagit.serialize.SerializationSupport.APPLICATION_GTAR;
+import static org.duraspace.bagit.serialize.SerializationSupport.APPLICATION_GZIP;
+import static org.duraspace.bagit.serialize.SerializationSupport.APPLICATION_TAR;
+import static org.duraspace.bagit.serialize.SerializationSupport.APPLICATION_X_COMPRESSED_TAR;
+import static org.duraspace.bagit.serialize.SerializationSupport.APPLICATION_X_GTAR;
+import static org.duraspace.bagit.serialize.SerializationSupport.APPLICATION_X_GZIP;
+import static org.duraspace.bagit.serialize.SerializationSupport.APPLICATION_X_TAR;
+import static org.duraspace.bagit.serialize.SerializationSupport.APPLICATION_ZIP;
 
 import java.io.UncheckedIOException;
 import java.net.URL;
@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import org.duraspace.bagit.exception.BagProfileException;
+import org.duraspace.bagit.BagProfile;
 import org.junit.Test;
 
 /**

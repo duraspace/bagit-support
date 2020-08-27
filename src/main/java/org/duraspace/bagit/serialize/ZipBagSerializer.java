@@ -2,7 +2,7 @@
  * The contents of this file are subject to the license and copyright detailed
  * in the LICENSE and NOTICE files at the root of the source tree.
  */
-package org.duraspace.bagit;
+package org.duraspace.bagit.serialize;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,20 +11,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
 /**
- * Serialize a BagIt bag to be a tar+gzip archive.
+ * Serialize a BagIt bag into a zip archive without compression
  *
  * @author mikejritter
  * @since 2020-02-24
  */
-public class TarGzBagSerializer implements BagSerializer {
-    private final String extension = ".tar.gz";
+public class ZipBagSerializer implements BagSerializer {
+    private final String extension = ".zip";
 
     @Override
     public Path serialize(final Path root) throws IOException {
@@ -33,21 +32,22 @@ public class TarGzBagSerializer implements BagSerializer {
 
         final Path serializedBag = parent.resolve(bagName + extension);
         try(final OutputStream os = Files.newOutputStream(serializedBag);
-            final GZIPOutputStream gzip = new GZIPOutputStream(os);
-            final TarArchiveOutputStream tar = new TarArchiveOutputStream(gzip)) {
-            tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
-            tar.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
+            final ZipArchiveOutputStream zip = new ZipArchiveOutputStream(os)) {
+
+            // it would be nice not to have to collect the files which are walked, but we're required to try/catch
+            // inside of a lambda which isn't the prettiest. maybe a result could be returned which contains either a
+            // Path or the Exception thrown... just an idea
             final List<Path> files = Files.walk(root).collect(Collectors.toList());
             for (Path bagEntry : files) {
                 final String name = parent.relativize(bagEntry).toString();
-                final ArchiveEntry entry = tar.createArchiveEntry(bagEntry.toFile(), name);
-                tar.putArchiveEntry(entry);
+                final ArchiveEntry entry = zip.createArchiveEntry(bagEntry.toFile(), name);
+                zip.putArchiveEntry(entry);
                 if (bagEntry.toFile().isFile()) {
                     try (InputStream inputStream = Files.newInputStream(bagEntry)) {
-                        IOUtils.copy(inputStream, tar);
+                        IOUtils.copy(inputStream, zip);
                     }
                 }
-                tar.closeArchiveEntry();
+                zip.closeArchiveEntry();
             }
         }
 

@@ -2,7 +2,7 @@
  * The contents of this file are subject to the license and copyright detailed
  * in the LICENSE and NOTICE files at the root of the source tree.
  */
-package org.duraspace.bagit;
+package org.duraspace.bagit.serialize;
 
 
 import static org.junit.Assert.assertNotNull;
@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 import org.apache.commons.io.FileUtils;
-import org.duraspace.bagit.exception.BagProfileException;
+import org.duraspace.bagit.BagProfile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -80,7 +80,7 @@ public class BagDeserializerTest {
             final BagProfile profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
             final BagDeserializer deserializer = SerializationSupport.deserializerFor(path, profile);
             deserializer.deserialize(path);
-        } catch (IOException | BagProfileException e) {
+        } catch (IOException e) {
             fail("Unexpected exception:\n" + e.getMessage());
         }
 
