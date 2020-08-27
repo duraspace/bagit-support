@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 
 import gov.loc.repository.bagit.domain.Manifest;
 import org.duraspace.bagit.BagConfig;
-import org.duraspace.bagit.ProfileValidationException;
+import org.duraspace.bagit.exception.ProfileValidationException;
 import org.slf4j.Logger;
 
 /**

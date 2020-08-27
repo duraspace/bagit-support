@@ -45,7 +45,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.domain.Manifest;
 import org.duraspace.bagit.BagConfig;
-import org.duraspace.bagit.ProfileValidationException;
+import org.duraspace.bagit.exception.ProfileValidationException;
 import org.slf4j.Logger;
 
 /**

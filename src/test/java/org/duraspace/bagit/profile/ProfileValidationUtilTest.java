@@ -15,9 +15,7 @@ import java.util.Set;
 
 import gov.loc.repository.bagit.domain.Manifest;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
-import org.duraspace.bagit.ProfileValidationException;
-import org.duraspace.bagit.profile.ProfileFieldRule;
-import org.duraspace.bagit.profile.ProfileValidationUtil;
+import org.duraspace.bagit.exception.ProfileValidationException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
