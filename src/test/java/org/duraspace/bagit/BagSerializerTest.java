@@ -50,7 +50,7 @@ public class BagSerializerTest {
     }
 
     @Test
-    public void testZipSerializer() throws IOException {
+    public void testZipSerializer() throws Exception {
         final BagSerializer zipper = SerializationSupport.serializerFor("zip", profile);
         final Path writtenBag = zipper.serialize(bag);
 
@@ -69,7 +69,7 @@ public class BagSerializerTest {
     }
 
     @Test
-    public void testTarSerializer() throws IOException {
+    public void testTarSerializer() throws Exception {
         final BagSerializer serializer = SerializationSupport.serializerFor("tar", profile);
         final Path writtenBag = serializer.serialize(bag);
 
@@ -88,7 +88,7 @@ public class BagSerializerTest {
     }
 
     @Test
-    public void testGZipSerializer() throws IOException {
+    public void testGZipSerializer() throws Exception {
         final BagSerializer serializer = SerializationSupport.serializerFor("tgz", profile);
         final Path writtenBag = serializer.serialize(bag);
 
