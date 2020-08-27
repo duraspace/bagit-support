@@ -44,6 +44,7 @@ import gov.loc.repository.bagit.verify.BagVerifier;
 import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.util.Maps;
+import org.duraspace.bagit.profile.BagProfile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

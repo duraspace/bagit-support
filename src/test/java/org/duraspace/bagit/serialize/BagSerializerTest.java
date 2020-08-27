@@ -20,9 +20,7 @@ import java.util.zip.GZIPInputStream;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
-import org.duraspace.bagit.BagProfile;
-import org.duraspace.bagit.serialize.BagSerializer;
-import org.duraspace.bagit.serialize.SerializationSupport;
+import org.duraspace.bagit.profile.BagProfile;
 import org.junit.Before;
 import org.junit.Test;
 

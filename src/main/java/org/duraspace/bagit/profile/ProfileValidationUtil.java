@@ -2,7 +2,7 @@
  * The contents of this file are subject to the license and copyright detailed
  * in the LICENSE and NOTICE files at the root of the source tree.
  */
-package org.duraspace.bagit;
+package org.duraspace.bagit.profile;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -22,6 +22,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import gov.loc.repository.bagit.domain.Manifest;
+import org.duraspace.bagit.BagConfig;
+import org.duraspace.bagit.ProfileValidationException;
 import org.slf4j.Logger;
 
 /**

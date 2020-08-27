@@ -2,23 +2,23 @@
  * The contents of this file are subject to the license and copyright detailed
  * in the LICENSE and NOTICE files at the root of the source tree.
  */
-package org.duraspace.bagit;
+package org.duraspace.bagit.profile;
 
-import static org.duraspace.bagit.BagProfileConstants.ACCEPT_BAGIT_VERSION;
-import static org.duraspace.bagit.BagProfileConstants.ACCEPT_SERIALIZATION;
-import static org.duraspace.bagit.BagProfileConstants.ALLOW_FETCH_TXT;
-import static org.duraspace.bagit.BagProfileConstants.BAGIT_PROFILE_INFO;
-import static org.duraspace.bagit.BagProfileConstants.BAGIT_TAG_SUFFIX;
-import static org.duraspace.bagit.BagProfileConstants.BAG_INFO;
-import static org.duraspace.bagit.BagProfileConstants.MANIFESTS_ALLOWED;
-import static org.duraspace.bagit.BagProfileConstants.MANIFESTS_REQUIRED;
-import static org.duraspace.bagit.BagProfileConstants.OTHER_INFO;
-import static org.duraspace.bagit.BagProfileConstants.SERIALIZATION;
-import static org.duraspace.bagit.BagProfileConstants.TAG_FILES_ALLOWED;
-import static org.duraspace.bagit.BagProfileConstants.TAG_FILES_REQUIRED;
-import static org.duraspace.bagit.BagProfileConstants.TAG_MANIFESTS_ALLOWED;
-import static org.duraspace.bagit.BagProfileConstants.TAG_MANIFESTS_REQUIRED;
-import static org.duraspace.bagit.BagProfileConstants.UTF_8;
+import static org.duraspace.bagit.profile.BagProfileConstants.ACCEPT_BAGIT_VERSION;
+import static org.duraspace.bagit.profile.BagProfileConstants.ACCEPT_SERIALIZATION;
+import static org.duraspace.bagit.profile.BagProfileConstants.ALLOW_FETCH_TXT;
+import static org.duraspace.bagit.profile.BagProfileConstants.BAGIT_PROFILE_INFO;
+import static org.duraspace.bagit.profile.BagProfileConstants.BAGIT_TAG_SUFFIX;
+import static org.duraspace.bagit.profile.BagProfileConstants.BAG_INFO;
+import static org.duraspace.bagit.profile.BagProfileConstants.MANIFESTS_ALLOWED;
+import static org.duraspace.bagit.profile.BagProfileConstants.MANIFESTS_REQUIRED;
+import static org.duraspace.bagit.profile.BagProfileConstants.OTHER_INFO;
+import static org.duraspace.bagit.profile.BagProfileConstants.SERIALIZATION;
+import static org.duraspace.bagit.profile.BagProfileConstants.TAG_FILES_ALLOWED;
+import static org.duraspace.bagit.profile.BagProfileConstants.TAG_FILES_REQUIRED;
+import static org.duraspace.bagit.profile.BagProfileConstants.TAG_MANIFESTS_ALLOWED;
+import static org.duraspace.bagit.profile.BagProfileConstants.TAG_MANIFESTS_REQUIRED;
+import static org.duraspace.bagit.profile.BagProfileConstants.UTF_8;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import java.io.IOException;
@@ -44,6 +44,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gov.loc.repository.bagit.domain.Bag;
 import gov.loc.repository.bagit.domain.Manifest;
+import org.duraspace.bagit.BagConfig;
+import org.duraspace.bagit.ProfileValidationException;
 import org.slf4j.Logger;
 
 /**

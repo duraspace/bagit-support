@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 import org.apache.commons.io.FileUtils;
-import org.duraspace.bagit.BagProfile;
+import org.duraspace.bagit.profile.BagProfile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

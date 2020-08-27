@@ -2,7 +2,7 @@
  * The contents of this file are subject to the license and copyright detailed
  * in the LICENSE and NOTICE files at the root of the source tree.
  */
-package org.duraspace.bagit;
+package org.duraspace.bagit.profile;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -15,6 +15,9 @@ import java.util.Set;
 
 import gov.loc.repository.bagit.domain.Manifest;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
+import org.duraspace.bagit.ProfileValidationException;
+import org.duraspace.bagit.profile.ProfileFieldRule;
+import org.duraspace.bagit.profile.ProfileValidationUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
