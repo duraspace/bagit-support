@@ -31,7 +31,4 @@ public abstract class BagProfileConstants {
 
     // misc
     public static final String BAGIT_TAG_SUFFIX = ".txt";
-    public static final String BAGIT_MD5 = "md5";
-    public static final String BAGIT_SHA1 = "sha1";
-    public static final String BAGIT_SHA_256 = "sha256";
 }
