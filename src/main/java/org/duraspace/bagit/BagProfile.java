@@ -143,8 +143,8 @@ public class BagProfile {
     private Set<String> payloadDigestAlgorithms;
     private Set<String> tagDigestAlgorithms;
 
-    private Map<String, Map<String, ProfileFieldRule>> metadataFields = new HashMap<>();
-    private Map<String, String> profileMetadata = new HashMap<>();
+    private final Map<String, Map<String, ProfileFieldRule>> metadataFields = new HashMap<>();
+    private final Map<String, String> profileMetadata = new HashMap<>();
 
     /**
      * Load a BagProfile from a {@link BuiltIn} profile type
