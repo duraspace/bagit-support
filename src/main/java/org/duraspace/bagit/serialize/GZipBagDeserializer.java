@@ -17,7 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Deflate a gzipped bag so that the underlying bag can continue to be deserialized.
+ * Deflate a gzipped bag so that the underlying bag can continue to be deserialized. After deflating the gzipped file
+ * the underlying bag will be deserialized. This allows us to handle different combinations of gzip + serialization
+ * formats.
  *
  * @author mikejritter
  * @since 2020-02-11
