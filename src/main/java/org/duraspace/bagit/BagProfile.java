@@ -55,6 +55,12 @@ import org.slf4j.Logger;
  */
 public class BagProfile {
 
+    private static final String APTRUST_IDENTIFIER = "aptrust";
+    private static final String PERSEIDS_IDENTIFIER = "perseids";
+    private static final String METAARCHIVE_IDENTIFIER = "metaarchive";
+    private static final String FEDORA_IDENTIFIER = "fedora-import-export";
+    private static final String BEYONDTHEREPO_IDENTIFIER = "beyondtherepository";
+
     public enum Serialization {
         FORBIDDEN, REQUIRED, OPTIONAL, UNKNOWN;
 
@@ -78,11 +84,11 @@ public class BagProfile {
      * Enum of the built in profiles which are provided with bagit-support
      */
     public enum BuiltIn {
-        APTRUST("aptrust"),
-        BEYOND_THE_REPOSITORY("beyondtherepository"),
-        FEDORA_IMPORT_EXPORT("fedora-import-export"),
-        METAARCHIVE("metaarchive"),
-        PERSEIDS("perseids");
+        APTRUST(APTRUST_IDENTIFIER),
+        BEYOND_THE_REPOSITORY(BEYONDTHEREPO_IDENTIFIER),
+        FEDORA_IMPORT_EXPORT(FEDORA_IDENTIFIER),
+        METAARCHIVE(METAARCHIVE_IDENTIFIER),
+        PERSEIDS(PERSEIDS_IDENTIFIER);
 
         private final String identifier;
 
@@ -104,11 +110,11 @@ public class BagProfile {
          */
         public static BuiltIn from(final String identifier) {
             switch (identifier.toLowerCase()) {
-                case "aptrust": return APTRUST;
-                case "beyondtherepository": return BEYOND_THE_REPOSITORY;
-                case "fedora-import-export": return FEDORA_IMPORT_EXPORT;
-                case "metaarchive": return METAARCHIVE;
-                case "perseids": return PERSEIDS;
+                case APTRUST_IDENTIFIER: return APTRUST;
+                case BEYONDTHEREPO_IDENTIFIER: return BEYOND_THE_REPOSITORY;
+                case FEDORA_IDENTIFIER: return FEDORA_IMPORT_EXPORT;
+                case METAARCHIVE_IDENTIFIER: return METAARCHIVE;
+                case PERSEIDS_IDENTIFIER: return PERSEIDS;
                 default: throw new IllegalArgumentException("Unsupported profile identifier. Accepted values are: " +
                                                             Arrays.stream(BuiltIn.values())
                                                                   .map(BuiltIn::getIdentifier)
