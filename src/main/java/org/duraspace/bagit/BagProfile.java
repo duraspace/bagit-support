@@ -102,6 +102,21 @@ public class BagProfile {
         }
 
         /**
+         * Retrieve the BuiltIn profile from an identifier with an additional profile to use as a match against a
+         * "default" identifier
+         *
+         * @param identifier the identifier of the profile
+         * @param profile the {@link BuiltIn} profile to return if the identifier matches "default"
+         * @return the matching {@link BuiltIn} profile
+         */
+        public static BuiltIn from(final String identifier, final BuiltIn profile) {
+            if ("default".equals(identifier.toLowerCase())) {
+                return profile;
+            }
+            return from(identifier);
+        }
+
+        /**
          * Retrieve a built in profile from an identifier
          *
          * @param identifier the identifier to retrieve a profile for
