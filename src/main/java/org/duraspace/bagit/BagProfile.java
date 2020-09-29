@@ -153,6 +153,15 @@ public class BagProfile {
     private final Map<String, String> profileMetadata = new HashMap<>();
 
     /**
+     * Create a BagProfile that uses the {@link BuiltIn} BEYOND_THE_REPOSITORY profile.
+     *
+     * @throws IOException if the beyondtherepository.json cannot be loaded
+     */
+    public BagProfile() throws IOException {
+        this(BuiltIn.BEYOND_THE_REPOSITORY);
+    }
+
+    /**
      * Load a BagProfile from a {@link BuiltIn} profile type
      *
      * @param builtInProfile the supported profile to load
