@@ -29,7 +29,7 @@ public enum BagItDigest {
      * @return the {@link BagItDigest}
      */
     public static BagItDigest from(final String name) {
-        switch (name.toLowerCase()) {
+        switch (name.toLowerCase().trim()) {
             case "md5":
                 return MD5;
             case "sha1":
