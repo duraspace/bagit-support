@@ -90,7 +90,7 @@ public class SerializationSupportTest {
 
     @Test(expected = RuntimeException.class)
     public void testDeserializerNoProfileSupport() throws Exception {
-        // Currently the DEFAULT profile only supports application/tar, so send a file which is not a tarball
+        // Currently the fedora profile only supports application/tar, so send a file which is not a tarball
         // see: profiles/fedora-import-export.json
         final BagProfile profile = new BagProfile(BagProfile.BuiltIn.FEDORA_IMPORT_EXPORT);
         final URL url = SerializationSupportTest.class.getClassLoader().getResource("sample/compress/bag-zip.zip");
