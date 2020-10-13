@@ -4,17 +4,16 @@
  */
 package org.duraspace.bagit;
 
-import static org.duraspace.bagit.BagProfileConstants.UTF_8;
-
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.Reader;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A convenience class for parsing and storing bagit-config.yml information. The bagit-config.yml represents
@@ -24,6 +23,8 @@ import com.esotericsoftware.yamlbeans.YamlReader;
  * @since Dec 14, 2016
  */
 public class BagConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(BagConfig.class);
 
     public enum AccessTypes {
         RESTRICTED, INSTITUTION, CONSORTIA
@@ -68,19 +69,21 @@ public class BagConfig {
     /**
      * Default constructor
      *
-     * @param bagConfigFile a bagit config yaml file (see src/test/resources/bagit-config.yml)
-     * @exception IOException if there is an error parsing the bagConfigFile
+     * @param bagConfigReader a reader for a bagit config yaml file (see src/test/resources/bagit-config.yml)
      */
     @SuppressWarnings("unchecked")
-    public BagConfig(final File bagConfigFile) throws IOException {
-        YamlReader reader = null;
-        try (BufferedReader br = Files.newBufferedReader(bagConfigFile.toPath(), UTF_8)) {
-            reader = new YamlReader(br);
-            map = (Map<String, Map<String, String>>) reader.read();
+    public BagConfig(final Reader bagConfigReader) {
+        YamlReader yaml = null;
+        try {
+            yaml = new YamlReader(bagConfigReader);
+            map = (Map<String, Map<String, String>>) yaml.read();
+        } catch (YamlException e) {
+            logger.error("Unable to parse yaml");
+            throw new IllegalStateException(e);
         } finally {
-            if (reader != null) {
+            if (yaml != null) {
                 try {
-                    reader.close();
+                    yaml.close();
                 } catch (IOException e) {
                 }
             }

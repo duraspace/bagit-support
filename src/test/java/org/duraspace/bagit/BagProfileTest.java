@@ -183,7 +183,7 @@ public class BagProfileTest {
 
     @Test
     public void testGoodConfig() throws Exception {
-        final BagConfig config = new BagConfig(resolveResourcePath(bagitConfig).toFile());
+        final BagConfig config = new BagConfig(Files.newBufferedReader(resolveResourcePath(bagitConfig)));
         final Map<String, Map<String, String>> configAsMap =
             config.getTagFiles().stream()
                   .collect(Collectors.toMap(identity(), config::getFieldsForTagFile));
@@ -194,28 +194,28 @@ public class BagProfileTest {
 
     @Test(expected = RuntimeException.class)
     public void testBadAccessValue() throws Exception {
-        final BagConfig config = new BagConfig(resolveResourcePath(bagitConfigBadAccess).toFile());
+        final BagConfig config = new BagConfig(Files.newBufferedReader(resolveResourcePath(bagitConfigBadAccess)));
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
         profile.validateConfig(config);
     }
 
     @Test(expected = RuntimeException.class)
     public void testMissingAccessValue() throws Exception {
-        final BagConfig config = new BagConfig(resolveResourcePath(bagitConfigMissingAccess).toFile());
+        final BagConfig config = new BagConfig(Files.newBufferedReader(resolveResourcePath(bagitConfigMissingAccess)));
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
         profile.validateConfig(config);
     }
 
     @Test
     public void testMissingSectionNotNeeded() throws Exception {
-        final BagConfig config = new BagConfig(resolveResourcePath(bagitConfigNoAptrust).toFile());
+        final BagConfig config = new BagConfig(Files.newBufferedReader(resolveResourcePath(bagitConfigNoAptrust)));
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(defaultProfilePath)));
         profile.validateConfig(config);
     }
 
     @Test(expected = RuntimeException.class)
     public void testMissingSectionRequired() throws Exception {
-        final BagConfig config = new BagConfig(resolveResourcePath(bagitConfigNoAptrust).toFile());
+        final BagConfig config = new BagConfig(Files.newBufferedReader(resolveResourcePath(bagitConfigNoAptrust)));
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
         profile.validateConfig(config);
     }
