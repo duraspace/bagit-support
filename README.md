@@ -7,15 +7,15 @@ Libraries to provide support for the use of Bagit bags and Bagit Profiles
 ## Bag Profiles
 
 The BagIt Support library complies with version `1.3.0` of the Bagit profiles specification and includes the following
-bag profiles by default:
+bag profiles:
 
-* [default](src/main/resources/profiles/default.json)
+* [fedora import export](src/main/resources/profiles/fedora-import-export.json)
 * [aptrust](src/main/resources/profiles/aptrust.json)
 * [beyond the repository](src/main/resources/profiles/beyondtherepository.json)
 * [meta archive](src/main/resources/profiles/metaarchive.json)
 * [perseids](src/main/resources/profiles/perseids.json)
 
-Because these profiles are built in, we do our best to keep them up to date but they may occasionally need to be 
+Because these profiles are built in, we do our best to keep them up to date, but they may occasionally need to be 
 updated.
 
 ### BagIt Profile Json
@@ -55,9 +55,11 @@ support constraints on custom tag files, a section called `Other-Info` is used t
 
 ### Using A Built In Profile
 
-The `BagProfile.java` has a default constructor which takes an `InputStream`. This is intended to be the json content
-of the Bagit profile being used. As each profile is provided as a resource in the classpath of the jar, it needs to be
-referenced in order to be loaded.
+The `BagProfile` class provides three constructors:
+* A default constructor which uses the `beyondtherepository` profile.
+* A constructor which takes a `BagProfile.BuiltIn` specifying a built in profile to use.
+* A constructor which takes an `InputStream`. This is intended to be the json content of the BagIt profile and allows
+for external profiles to be used.
 
 *e.g. Using a Built In Profile*
 ```java

@@ -55,6 +55,12 @@ import org.slf4j.Logger;
  */
 public class BagProfile {
 
+    private static final String APTRUST_IDENTIFIER = "aptrust";
+    private static final String PERSEIDS_IDENTIFIER = "perseids";
+    private static final String METAARCHIVE_IDENTIFIER = "metaarchive";
+    private static final String FEDORA_IDENTIFIER = "fedora-import-export";
+    private static final String BEYONDTHEREPO_IDENTIFIER = "beyondtherepository";
+
     public enum Serialization {
         FORBIDDEN, REQUIRED, OPTIONAL, UNKNOWN;
 
@@ -78,11 +84,11 @@ public class BagProfile {
      * Enum of the built in profiles which are provided with bagit-support
      */
     public enum BuiltIn {
-        APTRUST("aptrust"),
-        BEYOND_THE_REPOSITORY("beyondtherepository"),
-        DEFAULT("default"),
-        METAARCHIVE("metaarchive"),
-        PERSEIDS("perseids");
+        APTRUST(APTRUST_IDENTIFIER),
+        BEYOND_THE_REPOSITORY(BEYONDTHEREPO_IDENTIFIER),
+        FEDORA_IMPORT_EXPORT(FEDORA_IDENTIFIER),
+        METAARCHIVE(METAARCHIVE_IDENTIFIER),
+        PERSEIDS(PERSEIDS_IDENTIFIER);
 
         private final String identifier;
 
@@ -96,6 +102,21 @@ public class BagProfile {
         }
 
         /**
+         * Retrieve the BuiltIn profile from an identifier with an additional profile to use as a match against a
+         * "default" identifier
+         *
+         * @param identifier the identifier of the profile
+         * @param profile the {@link BuiltIn} profile to return if the identifier matches "default"
+         * @return the matching {@link BuiltIn} profile
+         */
+        public static BuiltIn from(final String identifier, final BuiltIn profile) {
+            if ("default".equals(identifier.toLowerCase())) {
+                return profile;
+            }
+            return from(identifier);
+        }
+
+        /**
          * Retrieve a built in profile from an identifier
          *
          * @param identifier the identifier to retrieve a profile for
@@ -104,11 +125,11 @@ public class BagProfile {
          */
         public static BuiltIn from(final String identifier) {
             switch (identifier.toLowerCase()) {
-                case "aptrust": return APTRUST;
-                case "beyondtherepository": return BEYOND_THE_REPOSITORY;
-                case "default": return DEFAULT;
-                case "metaarchive": return METAARCHIVE;
-                case "perseids": return PERSEIDS;
+                case APTRUST_IDENTIFIER: return APTRUST;
+                case BEYONDTHEREPO_IDENTIFIER: return BEYOND_THE_REPOSITORY;
+                case FEDORA_IDENTIFIER: return FEDORA_IMPORT_EXPORT;
+                case METAARCHIVE_IDENTIFIER: return METAARCHIVE;
+                case PERSEIDS_IDENTIFIER: return PERSEIDS;
                 default: throw new IllegalArgumentException("Unsupported profile identifier. Accepted values are: " +
                                                             Arrays.stream(BuiltIn.values())
                                                                   .map(BuiltIn::getIdentifier)
@@ -143,8 +164,17 @@ public class BagProfile {
     private Set<String> payloadDigestAlgorithms;
     private Set<String> tagDigestAlgorithms;
 
-    private Map<String, Map<String, ProfileFieldRule>> metadataFields = new HashMap<>();
-    private Map<String, String> profileMetadata = new HashMap<>();
+    private final Map<String, Map<String, ProfileFieldRule>> metadataFields = new HashMap<>();
+    private final Map<String, String> profileMetadata = new HashMap<>();
+
+    /**
+     * Create a BagProfile that uses the {@link BuiltIn} BEYOND_THE_REPOSITORY profile.
+     *
+     * @throws IOException if the beyondtherepository.json cannot be loaded
+     */
+    public BagProfile() throws IOException {
+        this(BuiltIn.BEYOND_THE_REPOSITORY);
+    }
 
     /**
      * Load a BagProfile from a {@link BuiltIn} profile type
