@@ -7,9 +7,7 @@ package org.duraspace.bagit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,12 +20,11 @@ import org.junit.Test;
 /**
  * Test the GZipBagDeserializer in the event the compressed archive which has been extracted from a gzip file is not
  * supported by a BagProfile.
- *
  */
 public class GZipBagDeserializerTest {
 
     @Test
-    public void testInvalidCompressedBag() throws URISyntaxException, IOException, BagProfileException {
+    public void testInvalidCompressedBag() throws Exception {
         // Because the serializers operate strictly on Paths, just compress a file with gz
         // This allows us to create a "bag" which is not supported by any profile
         final URL resourcesURI = this.getClass().getClassLoader().getResource("profiles");
@@ -39,7 +36,7 @@ public class GZipBagDeserializerTest {
         int n = 0;
         final byte[] buffer = new byte[2048];
         try (InputStream bagIn = Files.newInputStream(profileJson);
-            GzipCompressorOutputStream gzOut = new GzipCompressorOutputStream(Files.newOutputStream(invalidGz))) {
+             GzipCompressorOutputStream gzOut = new GzipCompressorOutputStream(Files.newOutputStream(invalidGz))) {
             while (-1 != (n = bagIn.read(buffer))) {
                 gzOut.write(buffer, 0, n);
             }
@@ -51,7 +48,7 @@ public class GZipBagDeserializerTest {
 
         try {
             bagDeserializer.deserialize(invalidGz);
-        } catch (IOException e) {
+        } catch (BagProfileException e) {
             assertThat(e).hasMessageContaining("BagProfile does not allow application/json");
         }
     }

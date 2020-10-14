@@ -42,9 +42,9 @@ public class GZipBagDeserializer implements BagDeserializer {
 
         // Deflate the gzip to get the base file
         logger.info("Deflating gzipped bag: {}", filename);
-        try (InputStream is = Files.newInputStream(root);
-            final InputStream bis = new BufferedInputStream(is);
-            final GzipCompressorInputStream gzipIS = new GzipCompressorInputStream(bis)) {
+        try (final InputStream is = Files.newInputStream(root);
+             final InputStream bis = new BufferedInputStream(is);
+             final GzipCompressorInputStream gzipIS = new GzipCompressorInputStream(bis)) {
 
             Files.copy(gzipIS, serializedBag);
         } catch (FileAlreadyExistsException ex) {
@@ -52,13 +52,7 @@ public class GZipBagDeserializer implements BagDeserializer {
         }
 
         // Get a deserializer for the deflated content
-        final BagDeserializer deserializer;
-        try {
-            deserializer = SerializationSupport.deserializerFor(serializedBag, profile);
-        } catch (BagProfileException e) {
-            logger.error("{} is not an accepted format for the given BagProfile!", serializedBag);
-            throw new IOException(e);
-        }
+        final BagDeserializer deserializer = SerializationSupport.deserializerFor(serializedBag, profile);
         return deserializer.deserialize(serializedBag);
     }
 }
