@@ -11,7 +11,7 @@ package org.duraspace.bagit.exception;
  *
  * @author mikejritter
  */
-public class BagProfileException extends Exception {
+public class BagProfileException extends RuntimeException {
 
     /**
      * Construct a {@link BagProfileException} with a specified message
