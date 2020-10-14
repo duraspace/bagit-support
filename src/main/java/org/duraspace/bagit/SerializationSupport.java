@@ -102,10 +102,12 @@ public class SerializationSupport {
      * @param profile the {@link BagProfile} to ensure that the content type is allowed
      * @return the {@link BagDeserializer}
      * @throws IOException if the Bag can not be queried for its content type
-     * @throws BagProfileException if the {@link BagProfile} does not allow serialization
+     * @throws BagProfileException if the the {@code serializedBag} is not supported by the {@code profile}
+     * @throws UnsupportedOperationException if the content type of the serialized bag does not have a
+     *                                       {@link BagDeserializer}
      */
     public static BagDeserializer deserializerFor(final Path serializedBag, final BagProfile profile)
-        throws IOException, BagProfileException {
+        throws IOException {
         final Tika tika = new Tika();
         final String contentType;
 
@@ -127,7 +129,7 @@ public class SerializationSupport {
             } else if (GZIP_TYPES.contains(contentType)) {
                 return new GZipBagDeserializer(profile);
             } else {
-                throw new BagProfileException("Unsupported content type " + contentType);
+                throw new UnsupportedOperationException("Unsupported content type " + contentType);
             }
         }
 
@@ -143,9 +145,9 @@ public class SerializationSupport {
      * @param profile the {@link BagProfile} used for validating the {@code contentType}
      * @return the {@link BagSerializer}
      * @throws BagProfileException if the {@code contentType} is not supported by the {@link BagProfile}
+     * @throws UnsupportedOperationException if the {@code contentType} does not have a built in serializer
      */
-    public static BagSerializer serializerFor(final String contentType, final BagProfile profile)
-        throws BagProfileException {
+    public static BagSerializer serializerFor(final String contentType, final BagProfile profile) {
         final String type = commonTypeMap.getOrDefault(contentType, contentType);
         if (profile.getAcceptedSerializations().contains(type)) {
             if (ZIP_TYPES.contains(type)) {
@@ -155,7 +157,7 @@ public class SerializationSupport {
             } else if (GZIP_TYPES.contains(type)) {
                 return new TarGzBagSerializer();
             } else {
-                throw new BagProfileException("Unsupported content type " + contentType);
+                throw new UnsupportedOperationException("Unsupported content type " + contentType);
             }
         }
 

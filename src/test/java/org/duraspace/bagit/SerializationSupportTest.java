@@ -101,7 +101,7 @@ public class SerializationSupportTest {
         SerializationSupport.deserializerFor(notSupported, profile);
     }
 
-    @Test(expected = BagProfileException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testDeserializationNotSupported() throws Exception {
         // A deserialization format which exists in a profile, but not by bagit-support
         // currently json because we have many json resources available
@@ -121,7 +121,7 @@ public class SerializationSupportTest {
         SerializationSupport.serializerFor(xz, profile);
     }
 
-    @Test(expected = BagProfileException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testSerializerNotSupported() throws Exception {
         // A serialization/compression format which exists in a profile, but not by bagit-support
         // currently 7zip fits this
