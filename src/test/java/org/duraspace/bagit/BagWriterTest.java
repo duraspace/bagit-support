@@ -259,7 +259,7 @@ public class BagWriterTest {
         }
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = IllegalArgumentException.class)
     public void testAddInvalidAlgorithm() throws IOException {
         // The message digests to use
         final BagItDigest sha1 = BagItDigest.SHA1;
