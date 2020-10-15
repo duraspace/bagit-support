@@ -14,6 +14,7 @@ import static org.duraspace.bagit.SerializationSupport.APPLICATION_X_GZIP;
 import static org.duraspace.bagit.SerializationSupport.APPLICATION_X_TAR;
 import static org.duraspace.bagit.SerializationSupport.APPLICATION_ZIP;
 
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -82,7 +83,7 @@ public class SerializationSupportTest {
                                                      value -> assertThat(value).isEqualTo(APPLICATION_GZIP));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = UncheckedIOException.class)
     public void testDeserializerForFileNotFound() throws Exception {
         final BagProfile profile = new BagProfile(BagProfile.BuiltIn.FEDORA_IMPORT_EXPORT);
         final Path notFound = Paths.get("file-not-found");

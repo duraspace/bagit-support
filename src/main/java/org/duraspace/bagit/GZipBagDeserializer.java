@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.duraspace.bagit.exception.BagProfileException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

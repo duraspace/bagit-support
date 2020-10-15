@@ -5,6 +5,7 @@
 package org.duraspace.bagit;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
@@ -101,13 +102,12 @@ public class SerializationSupport {
      * @param serializedBag the Bag (still serialized) to get a {@link BagDeserializer} for
      * @param profile the {@link BagProfile} to ensure that the content type is allowed
      * @return the {@link BagDeserializer}
-     * @throws IOException if the Bag can not be queried for its content type
      * @throws BagProfileException if the the {@code serializedBag} is not supported by the {@code profile}
+     * @throws UncheckedIOException if the Bag can not be queried for its content type
      * @throws UnsupportedOperationException if the content type of the serialized bag does not have a
      *                                       {@link BagDeserializer}
      */
-    public static BagDeserializer deserializerFor(final Path serializedBag, final BagProfile profile)
-        throws IOException {
+    public static BagDeserializer deserializerFor(final Path serializedBag, final BagProfile profile) {
         final Tika tika = new Tika();
         final String contentType;
 
@@ -118,7 +118,7 @@ public class SerializationSupport {
             logger.debug("{}: {}", serializedBag, contentType);
         } catch (IOException e) {
             logger.error("Unable to get content type for {}", serializedBag);
-            throw new IOException(e);
+            throw new UncheckedIOException(e);
         }
 
         if (profile.getAcceptedSerializations().contains(contentType)) {
