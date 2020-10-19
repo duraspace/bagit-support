@@ -5,7 +5,6 @@
 package org.duraspace.bagit;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -25,6 +24,9 @@ public class BagConfigTest {
 
     @Test
     public void testFromFile() throws IOException {
+        final String APTRUST_TAG = "aptrust-info.txt";
+        final String APTRUST_RESTRICTED = "Restricted";
+
         final Path testFile = Paths.get("src/test/resources/configs/bagit-config.yml");
         final BagConfig config = new BagConfig(Files.newBufferedReader(testFile));
 
@@ -34,10 +36,10 @@ public class BagConfigTest {
             .isNotNull()
             .isEqualTo("My University ✓");
 
-        assertTrue(config.hasTagFile("aptrust-info.txt"));
-        final Map<String, String> customTags = config.getFieldsForTagFile("aptrust-info.txt");
+        assertTrue(config.hasTagFile(APTRUST_TAG));
+        final Map<String, String> customTags = config.getFieldsForTagFile(APTRUST_TAG);
         assertNotNull(customTags);
-        assertEquals(customTags.get(BagConfig.ACCESS_KEY).toUpperCase(), BagConfig.AccessTypes.RESTRICTED.name());
+        assertThat(customTags.get(BagConfig.ACCESS_KEY)).isEqualTo(APTRUST_RESTRICTED);
 
     }
 

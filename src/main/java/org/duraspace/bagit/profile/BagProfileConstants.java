@@ -2,7 +2,7 @@
  * The contents of this file are subject to the license and copyright detailed
  * in the LICENSE and NOTICE files at the root of the source tree.
  */
-package org.duraspace.bagit;
+package org.duraspace.bagit.profile;
 
 import java.nio.charset.Charset;
 
@@ -31,7 +31,4 @@ public abstract class BagProfileConstants {
 
     // misc
     public static final String BAGIT_TAG_SUFFIX = ".txt";
-    public static final String BAGIT_MD5 = "md5";
-    public static final String BAGIT_SHA1 = "sha1";
-    public static final String BAGIT_SHA_256 = "sha256";
 }

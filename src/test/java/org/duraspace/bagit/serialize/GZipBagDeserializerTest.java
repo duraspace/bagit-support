@@ -2,7 +2,7 @@
  * The contents of this file are subject to the license and copyright detailed
  * in the LICENSE and NOTICE files at the root of the source tree.
  */
-package org.duraspace.bagit;
+package org.duraspace.bagit.serialize;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,6 +15,7 @@ import java.nio.file.Paths;
 
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.duraspace.bagit.exception.BagProfileException;
+import org.duraspace.bagit.profile.BagProfile;
 import org.junit.Test;
 
 /**

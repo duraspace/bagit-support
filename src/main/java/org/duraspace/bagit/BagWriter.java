@@ -4,7 +4,7 @@
  */
 package org.duraspace.bagit;
 
-import static org.duraspace.bagit.BagProfileConstants.UTF_8;
+import static org.duraspace.bagit.profile.BagProfileConstants.UTF_8;
 
 import java.io.File;
 import java.io.IOException;

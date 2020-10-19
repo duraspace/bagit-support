@@ -2,7 +2,7 @@
  * The contents of this file are subject to the license and copyright detailed
  * in the LICENSE and NOTICE files at the root of the source tree.
  */
-package org.duraspace.bagit;
+package org.duraspace.bagit.profile;
 
 import static java.util.function.Function.identity;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,16 +17,16 @@ import static org.duraspace.bagit.BagConfig.ORGANIZATION_ADDRESS_KEY;
 import static org.duraspace.bagit.BagConfig.PAYLOAD_OXUM_KEY;
 import static org.duraspace.bagit.BagConfig.SOURCE_ORGANIZATION_KEY;
 import static org.duraspace.bagit.BagConfig.TITLE_KEY;
-import static org.duraspace.bagit.BagProfileConstants.ACCEPT_BAGIT_VERSION;
-import static org.duraspace.bagit.BagProfileConstants.ACCEPT_SERIALIZATION;
-import static org.duraspace.bagit.BagProfileConstants.BAGIT_PROFILE_IDENTIFIER;
-import static org.duraspace.bagit.BagProfileConstants.BAGIT_PROFILE_INFO;
-import static org.duraspace.bagit.BagProfileConstants.BAGIT_PROFILE_VERSION;
-import static org.duraspace.bagit.BagProfileConstants.BAG_INFO;
-import static org.duraspace.bagit.BagProfileConstants.MANIFESTS_REQUIRED;
-import static org.duraspace.bagit.BagProfileConstants.PROFILE_VERSION;
-import static org.duraspace.bagit.BagProfileConstants.TAG_FILES_REQUIRED;
-import static org.duraspace.bagit.BagProfileConstants.TAG_MANIFESTS_REQUIRED;
+import static org.duraspace.bagit.profile.BagProfileConstants.ACCEPT_BAGIT_VERSION;
+import static org.duraspace.bagit.profile.BagProfileConstants.ACCEPT_SERIALIZATION;
+import static org.duraspace.bagit.profile.BagProfileConstants.BAGIT_PROFILE_IDENTIFIER;
+import static org.duraspace.bagit.profile.BagProfileConstants.BAGIT_PROFILE_INFO;
+import static org.duraspace.bagit.profile.BagProfileConstants.BAGIT_PROFILE_VERSION;
+import static org.duraspace.bagit.profile.BagProfileConstants.BAG_INFO;
+import static org.duraspace.bagit.profile.BagProfileConstants.MANIFESTS_REQUIRED;
+import static org.duraspace.bagit.profile.BagProfileConstants.PROFILE_VERSION;
+import static org.duraspace.bagit.profile.BagProfileConstants.TAG_FILES_REQUIRED;
+import static org.duraspace.bagit.profile.BagProfileConstants.TAG_MANIFESTS_REQUIRED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -52,6 +52,8 @@ import gov.loc.repository.bagit.domain.FetchItem;
 import gov.loc.repository.bagit.domain.Manifest;
 import gov.loc.repository.bagit.domain.Version;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
+import org.duraspace.bagit.BagConfig;
+import org.duraspace.bagit.BagItDigest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -26,13 +26,7 @@ public class BagConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(BagConfig.class);
 
-    public enum AccessTypes {
-        RESTRICTED, INSTITUTION, CONSORTIA
-    }
-
     public static final String BAG_INFO_KEY = "bag-info.txt";
-
-    private static final String APTRUST_INFO_KEY = "aptrust-info.txt";
 
     public static final String SOURCE_ORGANIZATION_KEY = "Source-Organization";
 
@@ -97,15 +91,6 @@ public class BagConfig {
      */
     public Map<String, String> getBagInfo() {
         return Collections.unmodifiableMap(this.map.getOrDefault(BAG_INFO_KEY, Collections.emptyMap()));
-    }
-
-    /**
-     * Returns an immutable map of aptrust info properties.
-     *
-     * @return a map of aptrust info properties
-     */
-    public Map<String, String> getAPTrustInfo() {
-        return Collections.unmodifiableMap(this.map.get(APTRUST_INFO_KEY));
     }
 
     /**

@@ -5,7 +5,7 @@
 package org.duraspace.bagit;
 
 /**
- * Simple encoder to convert a byte array to bytes.
+ * Simple encoder to convert a byte array to a hex string.
  *
  * From:
  * https://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java
