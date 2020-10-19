@@ -9,7 +9,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.junit.Test;
@@ -21,9 +24,9 @@ import org.junit.Test;
 public class BagConfigTest {
 
     @Test
-    public void testFromFile() {
-        final File testFile = new File("src/test/resources/configs/bagit-config.yml");
-        final BagConfig config = new BagConfig(testFile);
+    public void testFromFile() throws IOException {
+        final Path testFile = Paths.get("src/test/resources/configs/bagit-config.yml");
+        final BagConfig config = new BagConfig(Files.newBufferedReader(testFile));
 
         final Map<String, String> bagInfo = config.getBagInfo();
         assertNotNull(bagInfo);

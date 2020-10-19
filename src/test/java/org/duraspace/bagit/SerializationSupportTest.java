@@ -14,12 +14,14 @@ import static org.duraspace.bagit.SerializationSupport.APPLICATION_X_GZIP;
 import static org.duraspace.bagit.SerializationSupport.APPLICATION_X_TAR;
 import static org.duraspace.bagit.SerializationSupport.APPLICATION_ZIP;
 
+import java.io.UncheckedIOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import org.duraspace.bagit.exception.BagProfileException;
 import org.junit.Test;
 
 /**
@@ -81,14 +83,14 @@ public class SerializationSupportTest {
                                                      value -> assertThat(value).isEqualTo(APPLICATION_GZIP));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = UncheckedIOException.class)
     public void testDeserializerForFileNotFound() throws Exception {
         final BagProfile profile = new BagProfile(BagProfile.BuiltIn.FEDORA_IMPORT_EXPORT);
         final Path notFound = Paths.get("file-not-found");
         SerializationSupport.deserializerFor(notFound, profile);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = BagProfileException.class)
     public void testDeserializerNoProfileSupport() throws Exception {
         // Currently the fedora profile only supports application/tar, so send a file which is not a tarball
         // see: profiles/fedora-import-export.json
@@ -100,7 +102,7 @@ public class SerializationSupportTest {
         SerializationSupport.deserializerFor(notSupported, profile);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testDeserializationNotSupported() throws Exception {
         // A deserialization format which exists in a profile, but not by bagit-support
         // currently json because we have many json resources available
@@ -112,7 +114,7 @@ public class SerializationSupportTest {
         SerializationSupport.deserializerFor(profileJson, profile);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = BagProfileException.class)
     public void testSerializerNoProfileSupport() throws Exception {
         // A serialization/compression format which does not exist in the profile, currently xz
         final String xz = "application/x-xz";
@@ -120,7 +122,7 @@ public class SerializationSupportTest {
         SerializationSupport.serializerFor(xz, profile);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testSerializerNotSupported() throws Exception {
         // A serialization/compression format which exists in a profile, but not by bagit-support
         // currently 7zip fits this

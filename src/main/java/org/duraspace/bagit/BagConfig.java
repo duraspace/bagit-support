@@ -4,17 +4,16 @@
  */
 package org.duraspace.bagit;
 
-import static org.duraspace.bagit.BagProfileConstants.UTF_8;
-
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
+import java.io.Reader;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import com.esotericsoftware.yamlbeans.YamlException;
 import com.esotericsoftware.yamlbeans.YamlReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A convenience class for parsing and storing bagit-config.yml information. The bagit-config.yml represents
@@ -25,8 +24,10 @@ import com.esotericsoftware.yamlbeans.YamlReader;
  */
 public class BagConfig {
 
+    private static final Logger logger = LoggerFactory.getLogger(BagConfig.class);
+
     public enum AccessTypes {
-        RESTRICTED, INSTITUTION, CONSORTIA;
+        RESTRICTED, INSTITUTION, CONSORTIA
     }
 
     public static final String BAG_INFO_KEY = "bag-info.txt";
@@ -63,35 +64,26 @@ public class BagConfig {
 
     public static final String ACCESS_KEY = "Access";
 
-    private Map<String, Map<String, String>> map;
+    private final Map<String, Map<String, String>> map;
 
     /**
      * Default constructor
      *
-     * @param bagConfigFile a bagit config yaml file (see src/test/resources/bagit-config.yml)
+     * @param bagConfigReader a reader for a bagit config yaml file (see src/test/resources/bagit-config.yml)
      */
     @SuppressWarnings("unchecked")
-    public BagConfig(final File bagConfigFile) {
-        final String bagConfigFilePath = bagConfigFile.getAbsolutePath();
-
-        YamlReader reader = null;
+    public BagConfig(final Reader bagConfigReader) {
+        YamlReader yaml = null;
         try {
-            reader = new YamlReader(Files.newBufferedReader(bagConfigFile.toPath(), UTF_8));
-            map = (Map<String, Map<String, String>>) reader.read();
-            if (getBagInfo() == null) {
-                throw new RuntimeException("The " + BAG_INFO_KEY + " key is not present in the " + bagConfigFilePath);
-            }
-
-
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("The specified bag config file does not exist: " + bagConfigFile
-                    .getAbsolutePath());
-        } catch (Exception e) {
-            throw new RuntimeException("The specified bag config file could not be parsed: " + e.getMessage(), e);
+            yaml = new YamlReader(bagConfigReader);
+            map = (Map<String, Map<String, String>>) yaml.read();
+        } catch (YamlException e) {
+            logger.error("Unable to parse yaml", e);
+            throw new IllegalStateException(e);
         } finally {
-            if (reader != null) {
+            if (yaml != null) {
                 try {
-                    reader.close();
+                    yaml.close();
                 } catch (IOException e) {
                 }
             }
@@ -104,7 +96,7 @@ public class BagConfig {
      * @return a map of bag info properties
      */
     public Map<String, String> getBagInfo() {
-        return Collections.unmodifiableMap(this.map.get(BAG_INFO_KEY));
+        return Collections.unmodifiableMap(this.map.getOrDefault(BAG_INFO_KEY, Collections.emptyMap()));
     }
 
     /**
@@ -142,6 +134,6 @@ public class BagConfig {
      * @return a map of filenames to key-value property maps
      */
     public Map<String, String> getFieldsForTagFile(final String tagFile) {
-        return map.get(tagFile);
+        return Collections.unmodifiableMap(map.get(tagFile));
     }
 }

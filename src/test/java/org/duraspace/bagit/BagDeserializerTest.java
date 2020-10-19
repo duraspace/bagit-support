@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Objects;
 
 import org.apache.commons.io.FileUtils;
+import org.duraspace.bagit.exception.BagProfileException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +80,7 @@ public class BagDeserializerTest {
             final BagProfile profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
             final BagDeserializer deserializer = SerializationSupport.deserializerFor(path, profile);
             deserializer.deserialize(path);
-        } catch (IOException e) {
+        } catch (IOException | BagProfileException e) {
             fail("Unexpected exception:\n" + e.getMessage());
         }
 
