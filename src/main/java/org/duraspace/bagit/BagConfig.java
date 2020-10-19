@@ -78,7 +78,7 @@ public class BagConfig {
             yaml = new YamlReader(bagConfigReader);
             map = (Map<String, Map<String, String>>) yaml.read();
         } catch (YamlException e) {
-            logger.error("Unable to parse yaml");
+            logger.error("Unable to parse yaml", e);
             throw new IllegalStateException(e);
         } finally {
             if (yaml != null) {
