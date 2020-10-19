@@ -166,8 +166,7 @@ public class ProfileValidationUtilTest {
 
         // check that no errors were returned
         assertTrue(validateManifest(manifests, constraints, constraints, type).isEmpty());
-        assertTrue(
-            validateManifest(manifests, constraints, Collections.emptySet(), type).isEmpty());
+        assertTrue(validateManifest(manifests, constraints, Collections.emptySet(), type).isEmpty());
     }
 
     @Test

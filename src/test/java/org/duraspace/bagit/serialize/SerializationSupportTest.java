@@ -22,7 +22,7 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 import org.duraspace.bagit.exception.BagProfileException;
-import org.duraspace.bagit.BagProfile;
+import org.duraspace.bagit.profile.BagProfile;
 import org.junit.Test;
 
 /**

@@ -16,7 +16,7 @@ import java.util.Set;
 
 import org.apache.tika.Tika;
 import org.duraspace.bagit.exception.BagProfileException;
-import org.duraspace.bagit.BagProfile;
+import org.duraspace.bagit.profile.BagProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
