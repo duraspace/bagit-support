@@ -4,7 +4,7 @@
   <groupId>org.duraspace</groupId>
   <artifactId>bagit-support</artifactId>
   <name>bagit-support</name>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.1.0</version>
   <description>Libraries to provide support for the use of Bagit bags and Bagit Profiles</description>
   <url>https://github.com/duraspace/bagit-support</url>
 
