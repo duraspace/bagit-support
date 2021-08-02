@@ -34,7 +34,7 @@
     <assertj.version>3.11.1</assertj.version>
     <bagit.version>5.1.1</bagit.version>
     <commons-io.version>2.6</commons-io.version>
-    <commons-compress.version>1.20</commons-compress.version>
+    <commons-compress.version>1.21</commons-compress.version>
     <junit.version>4.13.1</junit.version>
     <logback.version>1.1.2</logback.version>
     <slf4j.version>1.7.10</slf4j.version>
