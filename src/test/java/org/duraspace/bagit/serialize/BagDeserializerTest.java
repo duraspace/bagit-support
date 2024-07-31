@@ -4,10 +4,9 @@
  */
 package org.duraspace.bagit.serialize;
 
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -15,18 +14,14 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Stream;
 
-import org.apache.commons.io.FileUtils;
 import org.duraspace.bagit.profile.BagProfile;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /**
  * Test that zip, tar, and tar+gz extraction works as expected
@@ -34,18 +29,16 @@ import org.junit.runners.Parameterized.Parameters;
  * @author mikejritter
  * @since 2020-02-13
  */
-@RunWith(Parameterized.class)
 public class BagDeserializerTest {
 
-    @Parameters(name = "extract {0}")
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][] {
-            {"bag-tar.tar", "bag-tar"},
-            {"bag-tar-no-dirs.tar", "bag-tar"},
-            {"bag-zip.zip", "bag-zip"},
-            {"bag-zip-no-dirs.zip", "bag-zip"},
-            {"bag-gzip.tar.gz", "bag-gzip"},
-        });
+    private static Stream<Arguments> data() {
+        return Stream.of(
+            Arguments.of("bag-tar.tar", "bag-tar"),
+            Arguments.of("bag-tar-no-dirs.tar", "bag-tar"),
+            Arguments.of("bag-zip.zip", "bag-zip"),
+            Arguments.of("bag-zip-no-dirs.zip", "bag-zip"),
+            Arguments.of("bag-gzip.tar.gz", "bag-gzip")
+        );
     }
 
     public static final String BAG_INFO_TXT = "bag-info.txt";
@@ -53,28 +46,19 @@ public class BagDeserializerTest {
     private final String group = "compress";
     private Path target;
 
-    private final String archive;
-    private final String expectedDir;
+    private final String archive = "";
+    private final String expectedDir = "";
 
-    public BagDeserializerTest(final String archive, final String expectedDir) {
-        this.archive = archive;
-        this.expectedDir = expectedDir;
-    }
-
-    @Before
+    @BeforeEach
     public void setup() throws URISyntaxException {
         final URL sample = this.getClass().getClassLoader().getResource("sample");
         target = Paths.get(Objects.requireNonNull(sample).toURI());
         assertNotNull(target);
     }
 
-    @After
-    public void cleanup() throws IOException {
-        FileUtils.deleteDirectory(target.resolve(group).resolve(expectedDir).toFile());
-    }
-
-    @Test
-    public void testExtract() {
+    @ParameterizedTest
+    @MethodSource("data")
+    public void testExtract(final String archive, final String expectedDir) {
         final Path path = target.resolve(group).resolve(archive);
         try {
             final BagProfile profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
