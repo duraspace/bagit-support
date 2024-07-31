@@ -7,7 +7,7 @@ package org.duraspace.bagit;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,9 +45,10 @@ import org.apache.commons.compress.utils.Sets;
 import org.apache.commons.io.FileUtils;
 import org.assertj.core.util.Maps;
 import org.duraspace.bagit.profile.BagProfile;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test basic bag writing functionality to make sure we are writing compliant bags
@@ -65,7 +66,7 @@ public class BagWriterTest {
     private Path bag;
     private BagProfile profile;
 
-    @Before
+    @BeforeEach
     public void setup() throws URISyntaxException, IOException {
         final URL sampleUrl = this.getClass().getClassLoader().getResource("sample");
         final Path sample = Paths.get(Objects.requireNonNull(sampleUrl).toURI());
@@ -74,7 +75,7 @@ public class BagWriterTest {
         profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
     }
 
-    @After
+    @AfterEach
     public void teardown() {
         if (bag != null) {
             FileUtils.deleteQuietly(bag.toFile());
@@ -260,18 +261,21 @@ public class BagWriterTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testAddInvalidAlgorithm() throws IOException {
-        // The message digests to use
-        final BagItDigest sha1 = BagItDigest.SHA1;
-        final BagItDigest sha256 = BagItDigest.SHA256;
+        assertThrows(IllegalArgumentException.class,
+            ()->{
+                // The message digests to use
+                final BagItDigest sha1 = BagItDigest.SHA1;
+                final BagItDigest sha256 = BagItDigest.SHA256;
 
-        // Create a writer with 3 manifest algorithms
-        Files.createDirectories(bag);
-        final BagWriter writer = new BagWriter(bag.toFile(), Sets.newHashSet(sha1));
+                // Create a writer with 3 manifest algorithms
+                Files.createDirectories(bag);
+                final BagWriter writer = new BagWriter(bag.toFile(), Sets.newHashSet(sha1));
 
-        // we don't need to pass any files, just the errant BagItDigest
-        writer.registerChecksums(sha256, Collections.emptyMap());
+                // we don't need to pass any files, just the errant BagItDigest
+                writer.registerChecksums(sha256, Collections.emptyMap());
+            });
     }
 
 }

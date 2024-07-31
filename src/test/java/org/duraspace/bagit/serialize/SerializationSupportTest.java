@@ -13,6 +13,7 @@ import static org.duraspace.bagit.serialize.SerializationSupport.APPLICATION_X_G
 import static org.duraspace.bagit.serialize.SerializationSupport.APPLICATION_X_GZIP;
 import static org.duraspace.bagit.serialize.SerializationSupport.APPLICATION_X_TAR;
 import static org.duraspace.bagit.serialize.SerializationSupport.APPLICATION_ZIP;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.UncheckedIOException;
 import java.net.URL;
@@ -23,7 +24,7 @@ import java.util.Map;
 
 import org.duraspace.bagit.exception.BagProfileException;
 import org.duraspace.bagit.profile.BagProfile;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Verify our type mappings are what we expect
@@ -84,52 +85,69 @@ public class SerializationSupportTest {
                                                      value -> assertThat(value).isEqualTo(APPLICATION_GZIP));
     }
 
-    @Test(expected = UncheckedIOException.class)
+    @Test
     public void testDeserializerForFileNotFound() throws Exception {
-        final BagProfile profile = new BagProfile(BagProfile.BuiltIn.FEDORA_IMPORT_EXPORT);
-        final Path notFound = Paths.get("file-not-found");
-        SerializationSupport.deserializerFor(notFound, profile);
+        assertThrows(UncheckedIOException.class,
+            ()->{
+                final BagProfile profile = new BagProfile(BagProfile.BuiltIn.FEDORA_IMPORT_EXPORT);
+                final Path notFound = Paths.get("file-not-found");
+                SerializationSupport.deserializerFor(notFound, profile);
+            });
     }
 
-    @Test(expected = BagProfileException.class)
+    @Test
     public void testDeserializerNoProfileSupport() throws Exception {
-        // Currently the fedora profile only supports application/tar, so send a file which is not a tarball
-        // see: profiles/fedora-import-export.json
-        final BagProfile profile = new BagProfile(BagProfile.BuiltIn.FEDORA_IMPORT_EXPORT);
-        final URL url = SerializationSupportTest.class.getClassLoader().getResource("sample/compress/bag-zip.zip");
-        assertThat(url).isNotNull();
+        assertThrows(BagProfileException.class,
+            ()->{
+                // Currently the fedora profile only supports application/tar, so send a file which is not a tarball
+                // see: profiles/fedora-import-export.json
+                final BagProfile profile = new BagProfile(BagProfile.BuiltIn.FEDORA_IMPORT_EXPORT);
+                final URL url = SerializationSupportTest.class.getClassLoader().getResource(
+                    "sample/compress/bag-zip.zip");
+                assertThat(url).isNotNull();
 
-        final Path notSupported = Paths.get(url.toURI());
-        SerializationSupport.deserializerFor(notSupported, profile);
+                final Path notSupported = Paths.get(url.toURI());
+                SerializationSupport.deserializerFor(notSupported, profile);
+            });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testDeserializationNotSupported() throws Exception {
-        // A deserialization format which exists in a profile, but not by bagit-support
-        // currently json because we have many json resources available
-        final URL profileUrl = SerializationSupportTest.class.getClassLoader().getResource("profiles/profile.json");
-        assertThat(profileUrl).isNotNull();
-        final Path profileJson = Paths.get(profileUrl.toURI());
-        final BagProfile profile = new BagProfile(Files.newInputStream(profileJson));
+        assertThrows(UnsupportedOperationException.class,
+            ()->{
+                // A deserialization format which exists in a profile, but not by bagit-support
+                // currently json because we have many json resources available
+                final URL profileUrl = SerializationSupportTest.class.getClassLoader().getResource(
+                    "profiles/profile.json");
+                assertThat(profileUrl).isNotNull();
+                final Path profileJson = Paths.get(profileUrl.toURI());
+                final BagProfile profile = new BagProfile(Files.newInputStream(profileJson));
 
-        SerializationSupport.deserializerFor(profileJson, profile);
+                SerializationSupport.deserializerFor(profileJson, profile);
+            });
     }
 
-    @Test(expected = BagProfileException.class)
+    @Test
     public void testSerializerNoProfileSupport() throws Exception {
-        // A serialization/compression format which does not exist in the profile, currently xz
-        final String xz = "application/x-xz";
-        final BagProfile profile = new BagProfile(BagProfile.BuiltIn.FEDORA_IMPORT_EXPORT);
-        SerializationSupport.serializerFor(xz, profile);
+        assertThrows(BagProfileException.class,
+            ()->{
+                // A serialization/compression format which does not exist in the profile, currently xz
+                final String xz = "application/x-xz";
+                final BagProfile profile = new BagProfile(BagProfile.BuiltIn.FEDORA_IMPORT_EXPORT);
+                SerializationSupport.serializerFor(xz, profile);
+            });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void testSerializerNotSupported() throws Exception {
-        // A serialization/compression format which exists in a profile, but not by bagit-support
-        // currently 7zip fits this
-        final String sevenZip = "application/x-7z-compressed";
-        final BagProfile profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
-        SerializationSupport.serializerFor(sevenZip, profile);
+        assertThrows(UnsupportedOperationException.class,
+            ()->{
+                // A serialization/compression format which exists in a profile, but not by bagit-support
+                // currently 7zip fits this
+                final String sevenZip = "application/x-7z-compressed";
+                final BagProfile profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
+                SerializationSupport.serializerFor(sevenZip, profile);
+            });
     }
 
 }

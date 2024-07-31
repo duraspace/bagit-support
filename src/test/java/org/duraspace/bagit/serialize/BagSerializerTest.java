@@ -21,8 +21,8 @@ import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.duraspace.bagit.profile.BagProfile;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for {@link BagSerializer} and implementing classes
@@ -37,7 +37,7 @@ public class BagSerializerTest {
     private BagProfile profile;
     private Set<Path> bagFiles;
 
-    @Before
+    @BeforeEach
     public void setup() throws IOException, URISyntaxException {
         final String samples = "sample";
 

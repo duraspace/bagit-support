@@ -27,10 +27,12 @@ import static org.duraspace.bagit.profile.BagProfileConstants.MANIFESTS_REQUIRED
 import static org.duraspace.bagit.profile.BagProfileConstants.PROFILE_VERSION;
 import static org.duraspace.bagit.profile.BagProfileConstants.TAG_FILES_REQUIRED;
 import static org.duraspace.bagit.profile.BagProfileConstants.TAG_MANIFESTS_REQUIRED;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -54,9 +56,8 @@ import gov.loc.repository.bagit.domain.Version;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import org.duraspace.bagit.BagConfig;
 import org.duraspace.bagit.BagItDigest;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,7 +87,7 @@ public class BagProfileTest {
 
     private final Logger logger = LoggerFactory.getLogger(BagProfileTest.class);
 
-    @Before
+    @BeforeEach
     public void setup() throws URISyntaxException {
         final URL url = this.getClass().getClassLoader().getResource("sample");
         targetDir = Paths.get(Objects.requireNonNull(url).toURI());
@@ -100,9 +101,12 @@ public class BagProfileTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test()
     public void testBuiltInNotSupported() {
-        BagProfile.BuiltIn.from("test");
+        assertThrows(IllegalArgumentException.class,
+            ()->{
+                BagProfile.BuiltIn.from("test");
+            });
     }
 
     @Test
@@ -194,18 +198,27 @@ public class BagProfileTest {
         profile.validateTagFiles(configAsMap);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testBadAccessValue() throws Exception {
-        final BagConfig config = new BagConfig(Files.newBufferedReader(resolveResourcePath(bagitConfigBadAccess)));
-        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
-        profile.validateConfig(config);
+        assertThrows(RuntimeException.class,
+            ()->{
+                final BagConfig config = new BagConfig(Files.newBufferedReader(resolveResourcePath(
+                    bagitConfigBadAccess)));
+                final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
+                profile.validateConfig(config);
+            });
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testMissingAccessValue() throws Exception {
-        final BagConfig config = new BagConfig(Files.newBufferedReader(resolveResourcePath(bagitConfigMissingAccess)));
-        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
-        profile.validateConfig(config);
+        assertThrows(RuntimeException.class,
+            ()->{
+                final BagConfig config = new BagConfig(Files.newBufferedReader(resolveResourcePath(
+                    bagitConfigMissingAccess)));
+                final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(
+                    extraTagsPath)));
+                profile.validateConfig(config);
+            });
     }
 
     @Test
@@ -215,11 +228,15 @@ public class BagProfileTest {
         profile.validateConfig(config);
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void testMissingSectionRequired() throws Exception {
-        final BagConfig config = new BagConfig(Files.newBufferedReader(resolveResourcePath(bagitConfigNoAptrust)));
-        final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
-        profile.validateConfig(config);
+        assertThrows(RuntimeException.class,
+            ()->{
+                final BagConfig config = new BagConfig(Files.newBufferedReader(
+                    resolveResourcePath(bagitConfigNoAptrust)));
+                final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(extraTagsPath)));
+                profile.validateConfig(config);
+            });
     }
 
     @Test
@@ -234,7 +251,7 @@ public class BagProfileTest {
             try {
                 profile = new BagProfile(BagProfile.BuiltIn.from(profileIdentifier));
             } catch (IOException e) {
-                Assert.fail(e.getMessage());
+                fail(e.getMessage());
             }
 
             validateProfile(Objects.requireNonNull(profile));
@@ -248,17 +265,17 @@ public class BagProfileTest {
         try {
             assertThat(profile.getIdentifier()).isEmpty();
             validateProfile(profile);
-            Assert.fail("Should throw an exception");
+            fail("Should throw an exception");
         } catch (RuntimeException e) {
             final String message = e.getMessage();
             // check that the error message contains each failed section
-            Assert.assertTrue(message.contains(BAGIT_PROFILE_INFO));
-            Assert.assertTrue(message.contains(BAGIT_PROFILE_IDENTIFIER));
-            Assert.assertTrue(message.contains(ACCEPT_SERIALIZATION));
-            Assert.assertTrue(message.contains(MANIFESTS_REQUIRED));
-            Assert.assertTrue(message.contains(TAG_MANIFESTS_REQUIRED));
-            Assert.assertTrue(message.contains(TAG_FILES_REQUIRED));
-            Assert.assertTrue(message.contains(ACCEPT_BAGIT_VERSION));
+            assertTrue(message.contains(BAGIT_PROFILE_INFO));
+            assertTrue(message.contains(BAGIT_PROFILE_IDENTIFIER));
+            assertTrue(message.contains(ACCEPT_SERIALIZATION));
+            assertTrue(message.contains(MANIFESTS_REQUIRED));
+            assertTrue(message.contains(TAG_MANIFESTS_REQUIRED));
+            assertTrue(message.contains(TAG_FILES_REQUIRED));
+            assertTrue(message.contains(ACCEPT_BAGIT_VERSION));
         }
     }
 
@@ -267,11 +284,11 @@ public class BagProfileTest {
         final BagProfile profile = new BagProfile(Files.newInputStream(resolveResourcePath(invalidSerializationPath)));
         try {
             validateProfile(profile);
-            Assert.fail("Should throw an exception");
+            fail("Should throw an exception");
         } catch (RuntimeException e) {
             final String message = e.getMessage();
             // check that the serialization field failed to parse
-            Assert.assertTrue(message.contains("Unknown Serialization"));
+            assertTrue(message.contains("Unknown Serialization"));
         }
     }
 
@@ -421,16 +438,16 @@ public class BagProfileTest {
 
         try {
             bagProfile.validateBag(bag);
-            Assert.fail("Validation did not throw an exception");
+            fail("Validation did not throw an exception");
         } catch (RuntimeException e) {
             final String message = e.getMessage();
-            Assert.assertTrue(message.contains("Profile does not allow a fetch.txt"));
-            Assert.assertTrue(message.contains("No tag manifest"));
-            Assert.assertTrue(message.contains("Required tag file \"aptrust-info.txt\" does not exist"));
-            Assert.assertTrue(message.contains("Could not read info from \"aptrust-info.txt\""));
-            Assert.assertTrue(message.contains("BagIt version incompatible"));
+            assertTrue(message.contains("Profile does not allow a fetch.txt"));
+            assertTrue(message.contains("No tag manifest"));
+            assertTrue(message.contains("Required tag file \"aptrust-info.txt\" does not exist"));
+            assertTrue(message.contains("Could not read info from \"aptrust-info.txt\""));
+            assertTrue(message.contains("BagIt version incompatible"));
 
-            Assert.assertFalse(message.contains("Missing tag manifest algorithm"));
+            assertFalse(message.contains("Missing tag manifest algorithm"));
         }
     }
 
