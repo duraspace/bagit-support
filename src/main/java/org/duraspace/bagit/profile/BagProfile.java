@@ -630,7 +630,7 @@ public class BagProfile {
         }
 
         // finally, if we have any errors throw an exception
-        if (errors.length() > 0) {
+        if (!errors.isEmpty()) {
             throw new RuntimeException("Bag profile validation failure: The following errors occurred: \n" +
                                        errors.toString());
         }

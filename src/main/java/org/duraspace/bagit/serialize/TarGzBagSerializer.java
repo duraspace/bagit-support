@@ -5,17 +5,15 @@
 package org.duraspace.bagit.serialize;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Serialize a BagIt bag to be a tar+gzip archive.
@@ -37,15 +35,13 @@ public class TarGzBagSerializer implements BagSerializer {
             final TarArchiveOutputStream tar = new TarArchiveOutputStream(gzip)) {
             tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
             tar.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
-            final List<Path> files = Files.walk(root).collect(Collectors.toList());
+            final List<Path> files = Files.walk(root).toList();
             for (Path bagEntry : files) {
                 final String name = parent.relativize(bagEntry).toString();
-                final ArchiveEntry entry = tar.createArchiveEntry(bagEntry.toFile(), name);
+                final TarArchiveEntry entry = tar.createArchiveEntry(bagEntry.toFile(), name);
                 tar.putArchiveEntry(entry);
                 if (bagEntry.toFile().isFile()) {
-                    try (InputStream inputStream = Files.newInputStream(bagEntry)) {
-                        IOUtils.copy(inputStream, tar);
-                    }
+                    FileUtils.copyFile(bagEntry.toFile(), tar);
                 }
                 tar.closeArchiveEntry();
             }

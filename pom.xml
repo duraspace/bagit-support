@@ -4,7 +4,7 @@
   <groupId>org.duraspace</groupId>
   <artifactId>bagit-support</artifactId>
   <name>bagit-support</name>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
   <description>Libraries to provide support for the use of Bagit bags and Bagit Profiles</description>
   <url>https://github.com/duraspace/bagit-support</url>
 
@@ -29,26 +29,26 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.java.source>1.8</project.java.source>
+    <project.java.source>17</project.java.source>
     <!-- dependency versions -->
-    <assertj.version>3.11.1</assertj.version>
-    <bagit.version>5.1.1</bagit.version>
-    <commons-io.version>2.6</commons-io.version>
-    <commons-compress.version>1.20</commons-compress.version>
-    <junit.version>4.13.1</junit.version>
-    <logback.version>1.1.2</logback.version>
-    <slf4j.version>1.7.10</slf4j.version>
-    <tika.version>1.23</tika.version>
-    <yaml-beans.version>1.13</yaml-beans.version>
+    <assertj.version>3.26.3</assertj.version>
+    <bagit.version>5.2.0</bagit.version>
+    <commons-io.version>2.16.1</commons-io.version>
+    <commons-compress.version>1.26.2</commons-compress.version>
+    <junit.version>4.13.2</junit.version>
+    <logback.version>1.5.6</logback.version>
+    <slf4j.version>2.0.13</slf4j.version>
+    <tika.version>2.9.2</tika.version>
+    <yaml-beans.version>1.17</yaml-beans.version>
     <!-- plugin versions -->
     <codestyle.version>1.0.1</codestyle.version>
-    <compiler.plugin.version>3.8.0</compiler.plugin.version>
-    <license.plugin.version>3.0</license.plugin.version>
-    <javadoc.plugin.version>3.2.0</javadoc.plugin.version>
-    <source.plugin.version>3.2.0</source.plugin.version>
-    <site.plugin.version>3.9.1</site.plugin.version>
-    <resources.plugin.version>3.2.0</resources.plugin.version>
-    <gpg.plugin.version>1.6</gpg.plugin.version>
+    <compiler.plugin.version>3.13.0</compiler.plugin.version>
+    <license.plugin.version>4.5</license.plugin.version>
+    <javadoc.plugin.version>3.8.0</javadoc.plugin.version>
+    <source.plugin.version>3.3.1</source.plugin.version>
+    <site.plugin.version>4.0.0-M16</site.plugin.version>
+    <resources.plugin.version>3.3.1</resources.plugin.version>
+    <gpg.plugin.version>3.2.4</gpg.plugin.version>
     <github.site.plugin.version>0.12</github.site.plugin.version>
   </properties>
 
@@ -145,6 +145,12 @@
     </dependency>
 
     <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>${commons-io.version}</version>
+    </dependency>
+    
+    <dependency>
       <groupId>org.apache.tika</groupId>
       <artifactId>tika-core</artifactId>
       <version>${tika.version}</version>
@@ -176,12 +182,6 @@
     </dependency>
 
     <!-- testing -->
-    <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>${commons-io.version}</version>
-      <scope>test</scope>
-    </dependency>
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -325,7 +325,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.5</version>
+        <version>0.8.12</version>
         <executions>
           <execution>
             <goals>
