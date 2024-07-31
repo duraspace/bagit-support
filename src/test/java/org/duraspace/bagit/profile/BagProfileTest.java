@@ -318,7 +318,7 @@ public class BagProfileTest {
         final Map<String, String> bagInfo = profile.getProfileMetadata();
         for (final String expected : expectedInfoFields) {
             if (!bagInfo.containsKey(expected)) {
-                if (errors.length() == 0) {
+                if (errors.isEmpty()) {
                     errors.append("Error(s) in BagIt-Profile-Info:\n");
                 }
                 errors.append("  * Missing key ").append(expected).append("\n");
@@ -362,7 +362,7 @@ public class BagProfileTest {
             errors.append("Accept-BagIt-Version requires at least one entry!");
         }
 
-        if (errors.length() > 0) {
+        if (!errors.isEmpty()) {
             errors.insert(0, "Bag Profile json does not conform to BagIt Profiles specification! " +
                              "The following errors occurred:\n");
             throw new RuntimeException(errors.toString());
