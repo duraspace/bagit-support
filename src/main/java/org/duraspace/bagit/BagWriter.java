@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -30,8 +31,8 @@ public class BagWriter {
     private final Set<BagItDigest> tagAlgorithms;
     private final Set<BagItDigest> payloadAlgorithms;
 
-    private final Map<BagItDigest, Map<File, String>> payloadRegistry;
-    private final Map<BagItDigest, Map<File, String>> tagFileRegistry;
+    private final Map<BagItDigest, LinkedHashMap<File, String>> payloadRegistry;
+    private final Map<BagItDigest, LinkedHashMap<File, String>> tagFileRegistry;
     private final Map<String, Map<String, String>> tagRegistry;
 
     /**
@@ -97,7 +98,7 @@ public class BagWriter {
      * @param algorithm Checksum digest algorithm name (e.g., "SHA-1")
      * @param filemap Map of Files to checksum values
      */
-    public void registerChecksums(final BagItDigest algorithm, final Map<File, String> filemap) {
+    public void registerChecksums(final BagItDigest algorithm, final LinkedHashMap<File, String> filemap) {
         if (!payloadAlgorithms.contains(algorithm)) {
             throw new IllegalArgumentException("Invalid algorithm: " + algorithm);
         }
@@ -112,7 +113,7 @@ public class BagWriter {
      * @param values Map containing field/value pairs
      */
     public void addTags(final String key, final Map<String, String> values) {
-        final Map<String, String> tagValues = tagRegistry.computeIfAbsent(key, k -> new HashMap<>());
+        final Map<String, String> tagValues = tagRegistry.computeIfAbsent(key, k -> new LinkedHashMap<>());
         tagValues.putAll(values);
     }
 
@@ -146,7 +147,7 @@ public class BagWriter {
      * @param registerToTags flag to check if the hash of the output should be stored in the {@code tagFileRegistry}
      * @throws IOException if there's an error writing to the OutputStream
      */
-    private void writeManifests(final String prefix, final Map<BagItDigest, Map<File, String>> registry,
+    private void writeManifests(final String prefix, final Map<BagItDigest, LinkedHashMap<File, String>> registry,
                                 final boolean registerToTags) throws IOException {
         final String delimiter = "  ";
         final char backslash = '\\';
@@ -224,7 +225,8 @@ public class BagWriter {
 
     private void addTagChecksum(final BagItDigest algorithm, final File f, final MessageDigest digest) {
         if (digest != null) {
-            final Map<File, String> m = tagFileRegistry.computeIfAbsent(algorithm, key -> new HashMap<>());
+            final LinkedHashMap<File, String> m =
+                tagFileRegistry.computeIfAbsent(algorithm, key -> new LinkedHashMap<>());
             m.put(f, HexEncoder.toString(digest.digest()));
         }
     }

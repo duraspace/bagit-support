@@ -19,8 +19,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -99,9 +99,15 @@ public class BagWriterTest {
         // Setup the data files
         final Path data = bag.resolve("data");
         final Path file = Files.createFile(data.resolve(filename));
-        final Map<File, String> sha1Sums = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha1MD.digest()));
-        final Map<File, String> sha256Sums  = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha256MD.digest()));
-        final Map<File, String> sha512Sums = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha512MD.digest()));
+
+        final LinkedHashMap<File, String> sha1Sums = new LinkedHashMap<>();
+        sha1Sums.put(file.toFile(), HexEncoder.toString(sha1MD.digest()));
+
+        final LinkedHashMap<File, String> sha256Sums = new LinkedHashMap<>();
+        sha256Sums.put(file.toFile(), HexEncoder.toString(sha256MD.digest()));
+
+        final LinkedHashMap<File, String> sha512Sums = new LinkedHashMap<>();
+        sha512Sums.put(file.toFile(), HexEncoder.toString(sha512MD.digest()));
 
         // second file
         final Path file2 = Files.createFile(data.resolve(filename + "2"));
@@ -170,8 +176,12 @@ public class BagWriterTest {
         // Setup the data files
         final Path data = bag.resolve("data");
         final Path file = Files.createFile(data.resolve(filename));
-        final Map<File, String> sha1Sums = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha1MD.digest()));
-        final Map<File, String> sha256Sums = Maps.newHashMap(file.toFile(), HexEncoder.toString(sha256MD.digest()));
+
+        final LinkedHashMap<File, String> sha1Sums = new LinkedHashMap<>();
+        sha1Sums.put(file.toFile(), HexEncoder.toString(sha1MD.digest()));
+
+        final LinkedHashMap<File, String> sha256Sums = new LinkedHashMap<>();
+        sha256Sums.put(file.toFile(), HexEncoder.toString(sha256MD.digest()));
 
         // second file
         final Path file2 = Files.createFile(data.resolve(filename + "2"));
@@ -274,7 +284,7 @@ public class BagWriterTest {
                 final BagWriter writer = new BagWriter(bag.toFile(), Sets.newHashSet(sha1));
 
                 // we don't need to pass any files, just the errant BagItDigest
-                writer.registerChecksums(sha256, Collections.emptyMap());
+                writer.registerChecksums(sha256, new LinkedHashMap<>());
             });
     }
 
