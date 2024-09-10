@@ -34,10 +34,10 @@
     <assertj.version>3.26.3</assertj.version>
     <bagit.version>5.2.0</bagit.version>
     <commons-io.version>2.16.1</commons-io.version>
-    <commons-compress.version>1.26.2</commons-compress.version>
-    <junit.version>5.10.3</junit.version>
-    <logback.version>1.5.6</logback.version>
-    <slf4j.version>2.0.13</slf4j.version>
+    <commons-compress.version>1.27.1</commons-compress.version>
+    <junit.version>5.11.0</junit.version>
+    <logback.version>1.5.8</logback.version>
+    <slf4j.version>2.0.16</slf4j.version>
     <tika.version>2.9.2</tika.version>
     <yaml-beans.version>1.17</yaml-beans.version>
     <!-- plugin versions -->
