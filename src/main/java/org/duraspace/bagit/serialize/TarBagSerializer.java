@@ -48,4 +48,8 @@ public class TarBagSerializer implements BagSerializer {
         return serializedBag;
     }
 
+    @Override
+    public Path serializeWithTimestamp(final Path root, final Long lastModifiedTime) throws IOException {
+        throw new UnsupportedOperationException("This method is not supported.");
+    }
 }
