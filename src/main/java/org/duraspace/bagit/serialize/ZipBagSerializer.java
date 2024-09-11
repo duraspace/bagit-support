@@ -66,14 +66,20 @@ public class ZipBagSerializer implements BagSerializer {
         logger.info("Serializing bag with timestamp: {}", root.getFileName());
 
         final Path parent = root.getParent().toAbsolutePath();
-
         final String bagName = root.getFileName().toString();
-
         final DateFormat df = new SimpleDateFormat("MM/dd/yyyy");
 
         final Path serializedBag = parent.resolve(bagName + extension);
         try(final OutputStream os = Files.newOutputStream(serializedBag);
             final ZipArchiveOutputStream zip = new ZipArchiveOutputStream(os)) {
+
+            // Use given last modified time or the default value
+            final FileTime time;
+            if (lastModifiedTime != 0) {
+                time = FileTime.fromMillis(lastModifiedTime);
+            } else {
+                time = FileTime.fromMillis(DEFAULT_MODIFIED_DATE);
+            }
 
             // it would be nice not to have to collect the files which are walked, but we're required to try/catch
             // inside of a lambda which isn't the prettiest. maybe a result could be returned which contains either a
@@ -83,15 +89,9 @@ public class ZipBagSerializer implements BagSerializer {
                 final String name = parent.relativize(bagEntry).toString();
                 final ZipArchiveEntry entry = zip.createArchiveEntry(bagEntry.toFile(), name);
 
-                final FileTime time;
-                if (lastModifiedTime != 0) {
-                    time = FileTime.fromMillis(lastModifiedTime);
-                } else {
-                    time = FileTime.fromMillis(DEFAULT_MODIFIED_DATE);
-                }
-
-                logger.debug("Setting ZipEntry creation, last modified and last access  times to: {}",
+                logger.debug("Setting ZipEntry creation, last modified and last access times to: {}",
                     df.format(time.toMillis()));
+
                 Files.setLastModifiedTime(bagEntry, time);
 
                 final X5455_ExtendedTimestamp extendedTimestamp = new X5455_ExtendedTimestamp();
