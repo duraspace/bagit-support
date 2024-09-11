@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public class ZipBagSerializer implements BagSerializer {
     private final String extension = ".zip";
 
-    private static final long DEFAULT_MODIFIED_DATE = 1036368000L * 1000;
+    protected static final long DEFAULT_MODIFIED_DATE = 1036368000L * 1000;
 
     private final Logger logger = LoggerFactory.getLogger(ZipBagSerializer.class);
 

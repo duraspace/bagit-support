@@ -5,6 +5,7 @@
 package org.duraspace.bagit.serialize;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.duraspace.bagit.serialize.ZipBagSerializer.DEFAULT_MODIFIED_DATE;
 
 import java.io.IOException;
 import java.net.URI;
@@ -54,6 +55,25 @@ public class BagSerializerTest {
     public void testZipSerializer() throws Exception {
         final BagSerializer zipper = SerializationSupport.serializerFor("zip", profile);
         final Path writtenBag = zipper.serialize(bag);
+
+        assertThat(writtenBag).exists();
+        assertThat(writtenBag).isRegularFile();
+
+        // just make sure we can read it
+        try (ZipArchiveInputStream zipIn = new ZipArchiveInputStream(Files.newInputStream(writtenBag))) {
+            ArchiveEntry entry;
+            while ((entry = zipIn.getNextEntry()) != null) {
+                assertThat(bagFiles).contains(Paths.get(entry.getName()));
+            }
+        }
+
+        Files.delete(writtenBag);
+    }
+
+    @Test
+    public void testZipSerializerWithTimestamp() throws Exception {
+        final BagSerializer zipper = SerializationSupport.serializerFor("zip", profile);
+        final Path writtenBag = zipper.serializeWithTimestamp(bag, DEFAULT_MODIFIED_DATE);
 
         assertThat(writtenBag).exists();
         assertThat(writtenBag).isRegularFile();
