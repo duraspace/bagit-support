@@ -216,27 +216,34 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <dependencies>
           <dependency>
             <groupId>org.duraspace</groupId>
             <artifactId>codestyle</artifactId>
             <version>${codestyle.version}</version>
           </dependency>
+          <!-- Override dependencies to use latest version of checkstyle -->
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>8.29</version>
+          </dependency>
         </dependencies>
         <configuration>
-          <includeTestSourceDirectory>true</includeTestSourceDirectory>
+          <configLocation>duraspace-checkstyle/checkstyle.xml</configLocation>
+          <suppressionsLocation>src/test/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
+          <encoding>UTF-8</encoding>
           <consoleOutput>true</consoleOutput>
           <logViolationsToConsole>true</logViolationsToConsole>
           <failsOnError>true</failsOnError>
           <failOnViolation>true</failOnViolation>
-          <violationSeverity>warning</violationSeverity>
-          <configLocation>duraspace-checkstyle/checkstyle.xml</configLocation>
-          <suppressionsLocation>src/test/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
+          <includeTestSourceDirectory>true</includeTestSourceDirectory>
         </configuration>
         <executions>
           <execution>
-            <id>checkstyle</id>
+            <id>verify-style</id>
+            <!-- Bind to verify so it runs after package & unit tests, but before install -->
             <phase>verify</phase>
             <goals>
               <goal>check</goal>
