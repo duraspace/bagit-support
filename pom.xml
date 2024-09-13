@@ -41,7 +41,7 @@
     <tika.version>2.9.2</tika.version>
     <yaml-beans.version>1.17</yaml-beans.version>
     <!-- plugin versions -->
-    <codestyle.version>1.0.1</codestyle.version>
+    <codestyle.version>1.1.0</codestyle.version>
     <compiler.plugin.version>3.13.0</compiler.plugin.version>
     <license.plugin.version>4.5</license.plugin.version>
     <javadoc.plugin.version>3.8.0</javadoc.plugin.version>
