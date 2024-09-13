@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
@@ -29,12 +30,15 @@ public class TarBagSerializer implements BagSerializer {
         final String bagName = root.getFileName().toString();
 
         final Path serializedBag = parent.resolve(bagName + extension);
-        try(final OutputStream os = Files.newOutputStream(serializedBag);
-            final TarArchiveOutputStream tar = new TarArchiveOutputStream(os)) {
+        try (final OutputStream os = Files.newOutputStream(serializedBag);
+            final TarArchiveOutputStream tar = new TarArchiveOutputStream(os);
+            final Stream<Path> files = Files.walk(root)) {
             tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
             tar.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
-            final List<Path> files = Files.walk(root).toList();
-            for (Path bagEntry : files) {
+
+            final Iterator<Path> itr = files.iterator();
+            while (itr.hasNext()) {
+                final Path bagEntry = itr.next();
                 final String name = parent.relativize(bagEntry).toString();
                 final TarArchiveEntry entry = tar.createArchiveEntry(bagEntry.toFile(), name);
                 tar.putArchiveEntry(entry);

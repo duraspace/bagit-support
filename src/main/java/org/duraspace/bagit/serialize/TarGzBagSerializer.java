@@ -8,7 +8,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Iterator;
+import java.util.stream.Stream;
 import java.util.zip.GZIPOutputStream;
 
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -32,11 +33,14 @@ public class TarGzBagSerializer implements BagSerializer {
         final Path serializedBag = parent.resolve(bagName + extension);
         try(final OutputStream os = Files.newOutputStream(serializedBag);
             final GZIPOutputStream gzip = new GZIPOutputStream(os);
-            final TarArchiveOutputStream tar = new TarArchiveOutputStream(gzip)) {
+            final TarArchiveOutputStream tar = new TarArchiveOutputStream(gzip);
+            final Stream<Path> files = Files.walk(root)) {
             tar.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
             tar.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
-            final List<Path> files = Files.walk(root).toList();
-            for (Path bagEntry : files) {
+
+            final Iterator<Path> itr = files.iterator();
+            while (itr.hasNext()) {
+                final Path bagEntry = itr.next();
                 final String name = parent.relativize(bagEntry).toString();
                 final TarArchiveEntry entry = tar.createArchiveEntry(bagEntry.toFile(), name);
                 tar.putArchiveEntry(entry);
