@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.duraspace.bagit.exception.BagProfileException;
 import org.duraspace.bagit.profile.BagProfile;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test the GZipBagDeserializer in the event the compressed archive which has been extracted from a gzip file is not
@@ -43,7 +43,7 @@ public class GZipBagDeserializerTest {
             }
         }
 
-        // for the actually testing, try to deserialize only to run into an exception
+        // for the actual testing, try to deserialize only to run into an exception
         final BagProfile profile = new BagProfile(BagProfile.BuiltIn.BEYOND_THE_REPOSITORY);
         final BagDeserializer bagDeserializer = SerializationSupport.deserializerFor(invalidGz, profile);
 

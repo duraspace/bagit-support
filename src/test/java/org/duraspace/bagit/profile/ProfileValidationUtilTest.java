@@ -8,9 +8,10 @@ import static org.duraspace.bagit.profile.ProfileValidationUtil.SYSTEM_GENERATED
 import static org.duraspace.bagit.profile.ProfileValidationUtil.validate;
 import static org.duraspace.bagit.profile.ProfileValidationUtil.validateManifest;
 import static org.duraspace.bagit.profile.ProfileValidationUtil.validateTagIsAllowed;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -24,8 +25,8 @@ import java.util.Set;
 import gov.loc.repository.bagit.domain.Manifest;
 import gov.loc.repository.bagit.hash.StandardSupportedAlgorithms;
 import org.duraspace.bagit.exception.ProfileValidationException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Tests for profile validation.
@@ -47,7 +48,7 @@ public class ProfileValidationUtilTest {
     private static final boolean repeatable = true;
     private static final boolean recommended = false;
 
-    @Before
+    @BeforeEach
     public void setup() {
         rules = new HashMap<>();
         fields = new LinkedHashMap<>();
@@ -65,16 +66,22 @@ public class ProfileValidationUtilTest {
         validate("profile-section", rules, fields);
     }
 
-    @Test(expected = ProfileValidationException.class)
+    @Test
     public void testEnforceValuesMissingRequired() throws ProfileValidationException {
-        fields.put("field2", "value1");
-        validate("profile-section", rules, fields);
+        assertThrows(ProfileValidationException.class,
+            ()->{
+                fields.put("field2", "value1");
+                validate("profile-section", rules, fields);
+            });
     }
 
-    @Test(expected = ProfileValidationException.class)
+    @Test
     public void testEnforceValuesInvalidValue() throws ProfileValidationException {
-        fields.put(FIELD1, "invalidValue");
-        validate("profile-section", rules, fields);
+        assertThrows(ProfileValidationException.class,
+            ()->{
+                fields.put(FIELD1, "invalidValue");
+                validate("profile-section", rules, fields);
+            });
     }
 
     @Test
@@ -135,10 +142,13 @@ public class ProfileValidationUtilTest {
         validateTagIsAllowed(Paths.get("test-info.txt"), allowedTags);
     }
 
-    @Test(expected = ProfileValidationException.class)
+    @Test
     public void testTagIsNotAllowed() throws ProfileValidationException {
-        final Set<String> allowedTags = Collections.singleton("test-tag.txt");
-        validateTagIsAllowed(Paths.get("test-info.txt"), allowedTags);
+        assertThrows(ProfileValidationException.class,
+            ()->{
+                final Set<String> allowedTags = Collections.singleton("test-tag.txt");
+                validateTagIsAllowed(Paths.get("test-info.txt"), allowedTags);
+            });
     }
 
     @Test

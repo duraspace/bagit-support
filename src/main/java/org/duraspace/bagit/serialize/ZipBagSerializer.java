@@ -5,16 +5,15 @@
 package org.duraspace.bagit.serialize;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
-import org.apache.commons.compress.archivers.ArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.FileUtils;
 
 /**
  * Serialize a BagIt bag into a zip archive without compression
@@ -32,20 +31,20 @@ public class ZipBagSerializer implements BagSerializer {
 
         final Path serializedBag = parent.resolve(bagName + extension);
         try(final OutputStream os = Files.newOutputStream(serializedBag);
-            final ZipArchiveOutputStream zip = new ZipArchiveOutputStream(os)) {
+            final ZipArchiveOutputStream zip = new ZipArchiveOutputStream(os);
+            final Stream<Path> files = Files.walk(root)) {
 
             // it would be nice not to have to collect the files which are walked, but we're required to try/catch
             // inside of a lambda which isn't the prettiest. maybe a result could be returned which contains either a
             // Path or the Exception thrown... just an idea
-            final List<Path> files = Files.walk(root).collect(Collectors.toList());
-            for (Path bagEntry : files) {
+            final Iterator<Path> itr = files.iterator();
+            while (itr.hasNext()) {
+                final Path bagEntry = itr.next();
                 final String name = parent.relativize(bagEntry).toString();
-                final ArchiveEntry entry = zip.createArchiveEntry(bagEntry.toFile(), name);
+                final ZipArchiveEntry entry = zip.createArchiveEntry(bagEntry.toFile(), name);
                 zip.putArchiveEntry(entry);
                 if (bagEntry.toFile().isFile()) {
-                    try (InputStream inputStream = Files.newInputStream(bagEntry)) {
-                        IOUtils.copy(inputStream, zip);
-                    }
+                    FileUtils.copyFile(bagEntry.toFile(), zip);
                 }
                 zip.closeArchiveEntry();
             }

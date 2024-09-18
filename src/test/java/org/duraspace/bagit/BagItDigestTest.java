@@ -5,8 +5,9 @@
 package org.duraspace.bagit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Simple tests for the helper methods on BagItDigest
@@ -24,9 +25,11 @@ public class BagItDigestTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testFailure() {
-        BagItDigest.from("invalid-algorithm");
+        assertThrows(IllegalArgumentException.class,
+            ()->{
+                BagItDigest.from("invalid-algorithm");
+            });
     }
-
 }

@@ -123,7 +123,7 @@ public class ProfileValidationUtil {
                 }
             }
 
-            if (errors.length() > 0) {
+            if (!errors.isEmpty()) {
                 throw new ProfileValidationException(
                         "Bag profile validation failure: The following errors occurred in the " +
                                 profileSection + ":\n" + errors.toString());

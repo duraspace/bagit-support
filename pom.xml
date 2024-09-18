@@ -4,7 +4,7 @@
   <groupId>org.duraspace</groupId>
   <artifactId>bagit-support</artifactId>
   <name>bagit-support</name>
-  <version>1.1.0</version>
+  <version>1.2.0</version>
   <description>Libraries to provide support for the use of Bagit bags and Bagit Profiles</description>
   <url>https://github.com/duraspace/bagit-support</url>
 
@@ -29,26 +29,26 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.java.source>1.8</project.java.source>
+    <project.java.source>17</project.java.source>
     <!-- dependency versions -->
-    <assertj.version>3.11.1</assertj.version>
-    <bagit.version>5.1.1</bagit.version>
-    <commons-io.version>2.6</commons-io.version>
-    <commons-compress.version>1.20</commons-compress.version>
-    <junit.version>4.13.1</junit.version>
-    <logback.version>1.1.2</logback.version>
-    <slf4j.version>1.7.10</slf4j.version>
-    <tika.version>1.23</tika.version>
-    <yaml-beans.version>1.13</yaml-beans.version>
+    <assertj.version>3.26.3</assertj.version>
+    <bagit.version>5.2.0</bagit.version>
+    <commons-io.version>2.16.1</commons-io.version>
+    <commons-compress.version>1.27.1</commons-compress.version>
+    <junit.version>5.11.0</junit.version>
+    <logback.version>1.5.8</logback.version>
+    <slf4j.version>2.0.16</slf4j.version>
+    <tika.version>2.9.2</tika.version>
+    <yaml-beans.version>1.17</yaml-beans.version>
     <!-- plugin versions -->
-    <codestyle.version>1.0.1</codestyle.version>
-    <compiler.plugin.version>3.8.0</compiler.plugin.version>
-    <license.plugin.version>3.0</license.plugin.version>
-    <javadoc.plugin.version>3.2.0</javadoc.plugin.version>
-    <source.plugin.version>3.2.0</source.plugin.version>
-    <site.plugin.version>3.9.1</site.plugin.version>
-    <resources.plugin.version>3.2.0</resources.plugin.version>
-    <gpg.plugin.version>1.6</gpg.plugin.version>
+    <codestyle.version>1.1.0</codestyle.version>
+    <compiler.plugin.version>3.13.0</compiler.plugin.version>
+    <license.plugin.version>4.5</license.plugin.version>
+    <javadoc.plugin.version>3.8.0</javadoc.plugin.version>
+    <source.plugin.version>3.3.1</source.plugin.version>
+    <site.plugin.version>3.12.1</site.plugin.version>
+    <resources.plugin.version>3.3.1</resources.plugin.version>
+    <gpg.plugin.version>3.2.4</gpg.plugin.version>
     <github.site.plugin.version>0.12</github.site.plugin.version>
   </properties>
 
@@ -145,6 +145,12 @@
     </dependency>
 
     <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>${commons-io.version}</version>
+    </dependency>
+    
+    <dependency>
       <groupId>org.apache.tika</groupId>
       <artifactId>tika-core</artifactId>
       <version>${tika.version}</version>
@@ -177,14 +183,14 @@
 
     <!-- testing -->
     <dependency>
-      <groupId>commons-io</groupId>
-      <artifactId>commons-io</artifactId>
-      <version>${commons-io.version}</version>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-api</artifactId>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-params</artifactId>
       <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
@@ -210,27 +216,34 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>3.0.0</version>
+        <version>3.1.0</version>
         <dependencies>
           <dependency>
             <groupId>org.duraspace</groupId>
             <artifactId>codestyle</artifactId>
             <version>${codestyle.version}</version>
           </dependency>
+          <!-- Override dependencies to use latest version of checkstyle -->
+          <dependency>
+            <groupId>com.puppycrawl.tools</groupId>
+            <artifactId>checkstyle</artifactId>
+            <version>8.29</version>
+          </dependency>
         </dependencies>
         <configuration>
-          <includeTestSourceDirectory>true</includeTestSourceDirectory>
+          <configLocation>duraspace-checkstyle/checkstyle.xml</configLocation>
+          <suppressionsLocation>src/test/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
+          <encoding>UTF-8</encoding>
           <consoleOutput>true</consoleOutput>
           <logViolationsToConsole>true</logViolationsToConsole>
           <failsOnError>true</failsOnError>
           <failOnViolation>true</failOnViolation>
-          <violationSeverity>warning</violationSeverity>
-          <configLocation>duraspace-checkstyle/checkstyle.xml</configLocation>
-          <suppressionsLocation>src/test/resources/checkstyle/checkstyle-suppressions.xml</suppressionsLocation>
+          <includeTestSourceDirectory>true</includeTestSourceDirectory>
         </configuration>
         <executions>
           <execution>
-            <id>checkstyle</id>
+            <id>verify-style</id>
+            <!-- Bind to verify so it runs after package & unit tests, but before install -->
             <phase>verify</phase>
             <goals>
               <goal>check</goal>
@@ -325,7 +338,7 @@
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
-        <version>0.8.5</version>
+        <version>0.8.12</version>
         <executions>
           <execution>
             <goals>
