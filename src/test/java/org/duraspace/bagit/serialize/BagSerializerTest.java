@@ -5,6 +5,8 @@
 package org.duraspace.bagit.serialize;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.duraspace.bagit.serialize.BagSerializer.DEFAULT_MODIFIED_DATE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.net.URI;
@@ -12,6 +14,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.FileTime;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,6 +22,7 @@ import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveInputStream;
 import org.duraspace.bagit.profile.BagProfile;
 import org.junit.jupiter.api.BeforeEach;
@@ -70,6 +74,28 @@ public class BagSerializerTest {
     }
 
     @Test
+    public void testZipSerializerWithTimestamp() throws IOException {
+        final BagSerializer zipper = SerializationSupport.serializerFor("zip", profile);
+        final Path writtenBag = zipper.serializeWithTimestamp(bag, DEFAULT_MODIFIED_DATE);
+
+        assertThat(writtenBag).exists();
+        assertThat(writtenBag).isRegularFile();
+
+        // just make sure we can read it
+        try (ZipArchiveInputStream zipIn = new ZipArchiveInputStream(Files.newInputStream(writtenBag))) {
+            ZipArchiveEntry entry;
+            while ((entry = zipIn.getNextEntry()) != null) {
+                assertThat(bagFiles).contains(Paths.get(entry.getName()));
+                assertEquals(entry.getCreationTime(), FileTime.fromMillis(DEFAULT_MODIFIED_DATE));
+                assertEquals(entry.getLastModifiedTime(), FileTime.fromMillis(DEFAULT_MODIFIED_DATE));
+                assertEquals(entry.getLastAccessTime(), FileTime.fromMillis(DEFAULT_MODIFIED_DATE));
+            }
+        }
+
+        Files.delete(writtenBag);
+    }
+
+    @Test
     public void testTarSerializer() throws Exception {
         final BagSerializer serializer = SerializationSupport.serializerFor("tar", profile);
         final Path writtenBag = serializer.serialize(bag);
@@ -107,5 +133,4 @@ public class BagSerializerTest {
 
         Files.delete(writtenBag);
     }
-
 }
